@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход - RPG Portal{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1 style="margin-bottom: 1.5rem;">Вход в систему</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    
+    <p style="margin-top: 1rem; text-align: center;">
+        Нет аккаунта? <a href="{% url 'profiles:signup' %}">Зарегистрируйтесь</a>
+    </p>
+    <p style="text-align: center;">
+        <a href="{% url 'password_reset' %}">Забыли пароль?</a>
+    </p>
+</div>
+{% endblock %}

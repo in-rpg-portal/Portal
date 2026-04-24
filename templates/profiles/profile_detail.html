@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль {{ profile.user.username }} - RPG Portal{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="profile-header">
+        <h1>{{ profile.user.username }}</h1>
+        <p style="color: #666;">Пользователь с {{ profile.created_at|date:"d.m.Y" }}</p>
+    </div>
+    
+    <div class="profile-bio">
+        <h3>О себе</h3>
+        <p>{{ profile.bio|default:"Пользователь пока ничего не рассказал о себе." }}</p>
+    </div>
+    
+    <div style="text-align: center;">
+        <p><strong>Email:</strong> {{ profile.user.email|default:"Не указан" }}</p>
+        
+        {% if user == profile.user %}
+            <a href="{% url 'profiles:profile_edit' %}" class="btn btn-secondary">Редактировать профиль</a>
+            <a href="{% url 'password_change' %}" class="btn" style="background: #ed8936; color: white;">Сменить пароль</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

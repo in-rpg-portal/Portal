@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Выход - RPG Portal{% endblock %}
+
+{% block content %}
+<div class="content-card" style="text-align: center;">
+    <h1 style="margin-bottom: 1rem;">До свидания!</h1>
+    <p style="margin-bottom: 1.5rem;">Вы успешно вышли из системы.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary">Войти снова</a>
+    <a href="/" class="btn" style="background: #a0aec0; color: white;">На главную</a>
+</div>
+{% endblock %}

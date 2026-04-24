@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование профиля - RPG Portal{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1 style="margin-bottom: 1.5rem;">Редактирование профиля</h1>
+    <h3 style="margin-bottom: 1rem; color: #666;">{{ user.username }}</h3>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.bio.id_for_label }}">{{ form.bio.label }}</label>
+            {{ form.bio }}
+            {{ form.bio.errors }}
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="{% url 'profiles:profile_detail' user.profile.pk %}" class="btn" style="background: #a0aec0; color: white;">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
