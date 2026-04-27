@@ -3,23 +3,26 @@
 {% block title %}Профиль {{ profile.user.username }} - RPG Portal{% endblock %}
 
 {% block content %}
-<h1>Профиль пользователя</h1>
-
-<div class="profile-header">
-    <h2>{{ profile.user.username }}</h2>
-    <p style="color: #666;">Пользователь с {{ profile.created_at|date:"d.m.Y" }}</p>
-</div>
-
-<div class="profile-bio">
-    <h3>О себе</h3>
-    <p>{{ profile.bio|default:"Пользователь пока ничего не рассказал о себе." }}</p>
-</div>
-
-<div style="text-align: center;">
-    <p><strong>Email:</strong> {{ profile.user.email|default:"Не указан" }}</p>
+<div class="content-card">
+    <h1>Профиль пользователя</h1>
     
-    {% if user == profile.user %}
-        <a href="{% url 'profiles:profile_edit' %}" class="btn btn-secondary">✏️ Редактировать профиль</a>
-    {% endif %}
+    <div class="profile-header">
+        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 3rem; font-weight: bold;">
+            {{ profile.user.username|first|upper }}
+        </div>
+        <h2>{{ profile.user.username }}</h2>
+        <p style="color: #666;">Пользователь с {{ profile.created_at|date:"d.m.Y" }}</p>
+    </div>
+    
+    <div class="profile-bio">
+        <h3>📝 О себе</h3>
+        <p>{{ profile.bio|default:"Пользователь пока ничего не рассказал о себе." }}</p>
+    </div>
+    
+    <div style="text-align: center;">
+        <p><strong>📧 Email:</strong> {{ profile.user.email|default:"Не указан" }}</p>
+        <p><strong>📅 Дата регистрации:</strong> {{ profile.user.date_joined|date:"d.m.Y H:i" }}</p>
+        <p><strong>🕐 Последний вход:</strong> {{ profile.user.last_login|date:"d.m.Y H:i"|default:"Никогда" }}</p>
+    </div>
 </div>
 {% endblock %}

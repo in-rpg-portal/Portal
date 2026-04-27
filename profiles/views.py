@@ -37,3 +37,7 @@ def profile_edit(request):
         form = ProfileEditForm(instance=profile)
     
     return render(request, 'profiles/profile_edit.html', {'form': form, 'profile': profile})
+
+def about(request):
+    """Страница о проекте"""
+    return render(request, 'profiles/about.html')

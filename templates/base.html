@@ -38,32 +38,32 @@
             color: #5a67d8;
         }
         
-        /* Основной контейнер с двумя колонками */
+        /* Основной контейнер с ТРЕНЯ колонками */
         .main-container {
             display: flex;
             max-width: 1400px;
             margin: 2rem auto;
-            gap: 2rem;
+            gap: 1.5rem;
             padding: 0 2rem;
         }
         
-        /* ЛЕВАЯ КОЛОНКА - МЕНЮ */
-        .sidebar {
-            width: 280px;
+        /* ЛЕВАЯ КОЛОНКА - МЕНЮ (ширина 220px) */
+        .sidebar-left {
+            width: 220px;
             flex-shrink: 0;
         }
         
         .menu-card {
             background: white;
             border-radius: 10px;
-            padding: 1.5rem;
+            padding: 1.2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: sticky;
             top: 90px;
         }
         
         .menu-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #333;
             padding-bottom: 0.5rem;
@@ -76,16 +76,17 @@
         }
         
         .menu-list li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
         }
         
         .menu-list a {
             display: block;
-            padding: 0.6rem 0.8rem;
+            padding: 0.5rem 0.7rem;
             color: #333;
             text-decoration: none;
             border-radius: 5px;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
         
         .menu-list a:hover {
@@ -96,24 +97,11 @@
         .menu-divider {
             height: 1px;
             background: #e2e8f0;
-            margin: 1rem 0;
+            margin: 0.8rem 0;
         }
         
-        .user-info {
-            background: #f7fafc;
-            padding: 0.8rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .user-info .username {
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        /* ПРАВАЯ КОЛОНКА - КОНТЕНТ */
-        .content-area {
+        /* ЦЕНТРАЛЬНАЯ КОЛОНКА - КОНТЕНТ */
+        .content-center {
             flex: 1;
             min-width: 0;
         }
@@ -121,45 +109,176 @@
         .content-card {
             background: white;
             border-radius: 10px;
-            padding: 2rem;
+            padding: 1.5rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
-        .test-message {
-            background: #ebf8ff;
-            border-left: 4px solid #4299e1;
-            padding: 1rem;
+        /* ПРАВАЯ КОЛОНКА - ПОЛЬЗОВАТЕЛЬ */
+        .sidebar-right {
+            width: 260px;
+            flex-shrink: 0;
+        }
+        
+        .user-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 90px;
+        }
+        
+        .user-card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        /* Для НЕ авторизованных пользователей */
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .auth-btn {
+            display: block;
+            text-align: center;
+            padding: 0.7rem;
             border-radius: 5px;
-            margin-bottom: 1.5rem;
+            text-decoration: none;
+            transition: all 0.3s;
         }
         
-        .test-message h3 {
-            color: #2b6cb0;
-            margin-bottom: 0.5rem;
+        .btn-login {
+            background: #667eea;
+            color: white;
         }
         
-        .test-message p {
-            color: #2c5282;
+        .btn-login:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-signup {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-signup:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        /* Для авторизованных пользователей */
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .user-name {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .user-email {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1rem;
+            word-break: break-all;
+        }
+        
+        .user-bio-preview {
+            background: #f7fafc;
+            padding: 0.6rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #555;
+            margin-bottom: 1rem;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        
+        .user-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .user-link {
+            display: block;
+            text-align: center;
+            padding: 0.5rem;
+            background: #f7fafc;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .user-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .logout-form {
+            margin-top: 0.5rem;
+        }
+        
+        .logout-btn {
+            width: 100%;
+            text-align: center;
+            padding: 0.5rem;
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #e53e3e;
         }
         
         /* Формы */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             font-weight: 500;
             color: #333;
+            font-size: 0.9rem;
         }
         
         .form-input {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.6rem;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: border-color 0.3s;
         }
         
@@ -174,10 +293,10 @@
         
         .btn {
             display: inline-block;
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.2rem;
             border: none;
             border-radius: 5px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s;
@@ -198,25 +317,21 @@
             color: white;
         }
         
-        .btn-secondary:hover {
-            background: #38a169;
-        }
-        
         .errorlist {
             color: #e53e3e;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
             list-style: none;
         }
         
         .profile-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         
         .profile-bio {
             background: #f7fafc;
-            padding: 1rem;
+            padding: 0.8rem;
             border-radius: 5px;
             margin: 1rem 0;
         }
@@ -224,23 +339,24 @@
         /* Футер */
         .footer {
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem;
             color: white;
-            margin-top: 3rem;
+            margin-top: 2rem;
+            font-size: 0.85rem;
         }
         
         /* Адаптивность */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .main-container {
                 flex-direction: column;
                 padding: 0 1rem;
             }
             
-            .sidebar {
+            .sidebar-left, .sidebar-right {
                 width: 100%;
             }
             
-            .menu-card {
+            .menu-card, .user-card {
                 position: static;
             }
         }
@@ -252,69 +368,91 @@
         <a href="/" class="header-brand">🎲 RPG Portal</a>
     </header>
     
-    <!-- ОСНОВНОЙ КОНТЕЙНЕР С ДВУМЯ КОЛОНКАМИ -->
+    <!-- ОСНОВНОЙ КОНТЕЙНЕР С ТРЕМЯ КОЛОНКАМИ -->
     <div class="main-container">
         
-        <!-- ЛЕВАЯ КОЛОНКА - МЕНЮ -->
-        <aside class="sidebar">
+        <!-- ЛЕВАЯ КОЛОНКА - МЕНЮ САЙТА -->
+        <aside class="sidebar-left">
             <div class="menu-card">
                 <div class="menu-title">📋 Меню</div>
-                
-                {% if user.is_authenticated %}
-                    <div class="user-info">
-                        <div>👤 <span class="username">{{ user.username }}</span></div>
-                        <div style="font-size: 0.8rem; color: #666;">Вы авторизованы</div>
-                    </div>
-                {% endif %}
-                
                 <ul class="menu-list">
                     <li><a href="/">🏠 Главная</a></li>
                     <li><a href="#">📖 Статьи</a></li>
                     <li><a href="#">🎮 Игровые системы</a></li>
                     <li><a href="#">⚔️ Классы персонажей</a></li>
                     <li><a href="#">📚 Правила</a></li>
+                    <li><a href="#">🗺️ Лор мира</a></li>
                 </ul>
-                
                 <div class="menu-divider"></div>
-                
                 <ul class="menu-list">
-                    {% if user.is_authenticated %}
-                        <li><a href="{% url 'profiles:profile_detail' user.profile.pk %}">👤 Мой профиль</a></li>
-                        <li><a href="{% url 'profiles:profile_edit' %}">✏️ Редактировать профиль</a></li>
-                        <li><a href="{% url 'password_change' %}">🔑 Сменить пароль</a></li>
-                        <li>
-                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" style="width: 100%; text-align: left; background: none; border: none; padding: 0.6rem 0.8rem; cursor: pointer; color: #e53e3e; font-size: 1rem;">
-                                    🚪 Выйти
-                                </button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <li><a href="{% url 'profiles:signup' %}">📝 Регистрация</a></li>
-                        <li><a href="{% url 'login' %}">🔐 Вход</a></li>
-                    {% endif %}
+                    <li><a href="#">❓ Помощь</a></li>
+                    <li><a href="{% url 'profiles:about' %}">ℹ️ О проекте</a></li>
                 </ul>
             </div>
         </aside>
         
-        <!-- ПРАВАЯ КОЛОНКА - КОНТЕНТ -->
-        <main class="content-area">
-            <!-- ТЕСТОВОЕ СООБЩЕНИЕ -->
-            <div class="test-message">
-                <h3>✨ Добро пожаловать в RPG Portal!</h3>
-                <p>Это тестовое сообщение. Здесь будет отображаться основной контент портала: статьи, новости, игровые системы и многое другое.</p>
-                <p style="margin-top: 0.5rem; font-size: 0.9rem;">🎯 Левое меню содержит навигацию, а в этой колонке будет основной контент.</p>
-            </div>
-            
-            <!-- ОСНОВНОЙ БЛОК КОНТЕНТА (переопределяется дочерними шаблонами) -->
+        <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА - ОСНОВНОЙ КОНТЕНТ -->
+        <main class="content-center">
+            {% block content %}
             <div class="content-card">
-                {% block content %}
                 <h1>Добро пожаловать в RPG Portal</h1>
                 <p>Выберите раздел в левом меню.</p>
-                {% endblock %}
             </div>
+            {% endblock %}
         </main>
+        
+        <!-- ПРАВАЯ КОЛОНКА - ПОЛЬЗОВАТЕЛЬ -->
+        <aside class="sidebar-right">
+            <div class="user-card">
+                <div class="user-card-title">
+                    {% if user.is_authenticated %}
+                        👤 Мой аккаунт
+                    {% else %}
+                        🔐 Аккаунт
+                    {% endif %}
+                </div>
+                
+                {% if user.is_authenticated %}
+                    <!-- АВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ -->
+                    <div class="user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-name">{{ user.username }}</div>
+                    <div class="user-email">{{ user.email|default:"email не указан" }}</div>
+                    
+                    {% if user.profile.bio %}
+                        <div class="user-bio-preview">
+                            {{ user.profile.bio|truncatewords:20 }}
+                        </div>
+                    {% else %}
+                        <div class="user-bio-preview" style="color: #999;">
+                            Расскажите о себе...
+                        </div>
+                    {% endif %}
+                    
+                    <div class="user-links">
+                        <a href="{% url 'profiles:profile_detail' user.profile.pk %}" class="user-link">📄 Просмотр профиля</a>
+                        <a href="{% url 'profiles:profile_edit' %}" class="user-link">✏️ Редактировать</a>
+                        <a href="{% url 'password_change' %}" class="user-link">🔑 Сменить пароль</a>
+                    </div>
+                    
+                    <form action="{% url 'logout' %}" method="post" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-btn">🚪 Выйти</button>
+                    </form>
+                    
+                {% else %}
+                    <!-- НЕ АВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ -->
+                    <div class="auth-buttons">
+                        <a href="{% url 'login' %}" class="auth-btn btn-login">🔐 Вход</a>
+                        <a href="{% url 'profiles:signup' %}" class="auth-btn btn-signup">📝 Регистрация</a>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 0.75rem; color: #666; text-align: center;">
+                        Зарегистрируйтесь, чтобы получить доступ ко всем функциям портала
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
         
     </div>
     
