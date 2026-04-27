@@ -43,12 +43,30 @@ class SignUpForm(UserCreationForm):
 
 class ProfileEditForm(forms.ModelForm):
     """Форма редактирования профиля"""
+    
     class Meta:
         model = Profile
-        fields = ('bio',)
+        fields = ('bio', 'avatar')
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-input', 'rows': 6, 'placeholder': 'Расскажите о себе...'}),
+            'avatar': forms.FileInput(attrs={'class': 'form-input', 'accept': 'image/*'}),
         }
         labels = {
             'bio': 'О себе',
+            'avatar': 'Аватар',
         }
+    
+    def clean_avatar(self):
+        """Валидация загружаемого файла"""
+        avatar = self.cleaned_data.get('avatar')
+        if avatar:
+            # Проверка размера файла (не более 5MB)
+            if avatar.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('Размер файла не должен превышать 5MB')
+            
+            # Проверка типа файла
+            valid_types = ['image/jpeg', 'image/png', 'image/gif']
+            if avatar.content_type not in valid_types:
+                raise forms.ValidationError('Поддерживаются только JPEG, PNG и GIF изображения')
+        
+        return avatar

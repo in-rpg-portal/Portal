@@ -2,12 +2,20 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import os
 
 class Profile(models.Model):
     """Профиль пользователя, расширяющий стандартную модель User"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Пользователь')
     bio = models.TextField('О себе', max_length=500, blank=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
+    avatar = models.ImageField(
+        'Аватар', 
+        upload_to='avatars/', 
+        blank=True, 
+        null=True,
+        help_text='Загрузите изображение (jpg, png, gif)'
+    )
     
     class Meta:
         verbose_name = 'Профиль'
@@ -19,6 +27,24 @@ class Profile(models.Model):
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('profiles:profile_detail', args=[self.pk])
+    
+    def delete_old_avatar(self):
+        """Удаляет старый файл аватара, если он существует"""
+        if self.avatar and os.path.isfile(self.avatar.path):
+            os.remove(self.avatar.path)
+    
+    def save(self, *args, **kwargs):
+        # Если профиль уже существует (есть pk), проверяем аватар
+        if self.pk:
+            try:
+                old_avatar = Profile.objects.get(pk=self.pk).avatar
+                # Если аватар изменился и старый существовал
+                if old_avatar and old_avatar != self.avatar:
+                    if os.path.isfile(old_avatar.path):
+                        os.remove(old_avatar.path)
+            except Profile.DoesNotExist:
+                pass
+        super().save(*args, **kwargs)
 
 # Сигнал для автоматического создания профиля при создании пользователя
 @receiver(post_save, sender=User)

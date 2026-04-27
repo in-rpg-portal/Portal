@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Редактирование профиля - RPG Portal{% endblock %}
 
@@ -7,9 +8,41 @@
     <h1>✏️ Редактирование профиля</h1>
     <p style="margin-bottom: 1rem; color: #666;">Пользователь: <strong>{{ user.username }}</strong></p>
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
+        <!-- ТЕКУЩИЙ АВАТАР -->
+        <div class="form-group">
+            <label>Текущий аватар</label>
+            <div style="margin-bottom: 10px;">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="Аватар" 
+                         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                        Загрузите новое изображение, чтобы заменить текущий аватар
+                    </p>
+                {% else %}
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                        Аватар не установлен. Загрузите изображение.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- ПОЛЕ ЗАГРУЗКИ АВАТАРА -->
+        <div class="form-group">
+            <label for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>
+            {{ form.avatar }}
+            <small style="color: #666; display: block; margin-top: 5px;">
+                Поддерживаемые форматы: JPEG, PNG, GIF. Максимальный размер: 5MB
+            </small>
+            {{ form.avatar.errors }}
+        </div>
+        
+        <!-- ПОЛЕ BIO -->
         <div class="form-group">
             <label for="{{ form.bio.id_for_label }}">{{ form.bio.label }}</label>
             {{ form.bio }}

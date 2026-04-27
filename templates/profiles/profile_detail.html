@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Профиль {{ profile.user.username }} - RPG Portal{% endblock %}
 
@@ -7,9 +8,18 @@
     <h1>Профиль пользователя</h1>
     
     <div class="profile-header">
-        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 3rem; font-weight: bold;">
-            {{ profile.user.username|first|upper }}
+        <!-- АВАТАР -->
+        <div class="avatar-container" style="text-align: center; margin-bottom: 1rem;">
+            {% if profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="Аватар {{ profile.user.username }}" 
+                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea;">
+            {% else %}
+                <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
+                    {{ profile.user.username|first|upper }}
+                </div>
+            {% endif %}
         </div>
+        
         <h2>{{ profile.user.username }}</h2>
         <p style="color: #666;">Пользователь с {{ profile.created_at|date:"d.m.Y" }}</p>
     </div>

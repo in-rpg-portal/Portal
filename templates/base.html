@@ -414,9 +414,16 @@
                 
                 {% if user.is_authenticated %}
                     <!-- АВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ -->
-                    <div class="user-avatar">
-                        {{ user.username|first|upper }}
-                    </div>
+                    {% if user.profile.avatar %}
+                        <div style="text-align: center; margin-bottom: 1rem;">
+                            <img src="{{ user.profile.avatar.url }}" alt="Аватар" 
+                                style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #667eea;">
+                        </div>
+                    {% else %}
+                        <div class="user-avatar">
+                            {{ user.username|first|upper }}
+                        </div>
+                    {% endif %}
                     <div class="user-name">{{ user.username }}</div>
                     <div class="user-email">{{ user.email|default:"email не указан" }}</div>
                     

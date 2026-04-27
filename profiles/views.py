@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib import messages
 from .forms import SignUpForm, ProfileEditForm
 from .models import Profile
 
@@ -12,6 +13,7 @@ def signup(request):
             user = form.save()
             # Автоматически входим после регистрации
             login(request, user)
+            messages.success(request, f'Добро пожаловать, {user.username}!')
             return redirect('profiles:profile_detail', pk=user.profile.pk)
     else:
         form = SignUpForm()
@@ -29,9 +31,10 @@ def profile_edit(request):
     profile = request.user.profile
     
     if request.method == 'POST':
-        form = ProfileEditForm(request.POST, instance=profile)
+        form = ProfileEditForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Ваш профиль успешно обновлён!')
             return redirect('profiles:profile_detail', pk=profile.pk)
     else:
         form = ProfileEditForm(instance=profile)
