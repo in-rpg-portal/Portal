@@ -6,15 +6,22 @@ from .forms import SignUpForm, ProfileEditForm
 from .models import Profile
 
 def signup(request):
-    """Регистрация нового пользователя"""
+    """Регистрация нового пользователя с аватаром"""
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = SignUpForm(request.POST, request.FILES)  # Важно: добавляем request.FILES
         if form.is_valid():
             user = form.save()
-            # Автоматически входим после регистрации
             login(request, user)
-            messages.success(request, f'Добро пожаловать, {user.username}!')
+            messages.success(
+                request, 
+                f'🎉 Добро пожаловать, {user.username}! Ваш аккаунт успешно создан.'
+            )
             return redirect('profiles:profile_detail', pk=user.profile.pk)
+        else:
+            messages.error(
+                request, 
+                '❌ Пожалуйста, исправьте ошибки в форме регистрации.'
+            )
     else:
         form = SignUpForm()
     
