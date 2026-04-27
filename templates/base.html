@@ -17,56 +17,105 @@
             min-height: 100vh;
         }
         
-        nav {
+        /* Шапка сайта */
+        .header {
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
-        .nav-brand {
-            font-size: 1.5rem;
+        .header-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .header-brand:hover {
+            color: #5a67d8;
+        }
+        
+        /* Основной контейнер с двумя колонками */
+        .main-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 2rem auto;
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+        
+        /* ЛЕВАЯ КОЛОНКА - МЕНЮ */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 90px;
+        }
+        
+        .menu-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-list {
+            list-style: none;
+        }
+        
+        .menu-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-list a {
+            display: block;
+            padding: 0.6rem 0.8rem;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .menu-list a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .menu-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 1rem 0;
+        }
+        
+        .user-info {
+            background: #f7fafc;
+            padding: 0.8rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .user-info .username {
             font-weight: bold;
             color: #667eea;
         }
         
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: #667eea;
-        }
-        
-        .nav-links button {
-            background: none;
-            border: none;
-            color: #333;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: color 0.3s;
-        }
-        
-        .nav-links button:hover {
-            color: #667eea;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
+        /* ПРАВАЯ КОЛОНКА - КОНТЕНТ */
+        .content-area {
+            flex: 1;
+            min-width: 0;
         }
         
         .content-card {
@@ -76,6 +125,24 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
+        .test-message {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-message h3 {
+            color: #2b6cb0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-message p {
+            color: #2c5282;
+        }
+        
+        /* Формы */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -135,15 +202,6 @@
             background: #38a169;
         }
         
-        .btn-danger {
-            background: #f56565;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
-        
         .errorlist {
             color: #e53e3e;
             font-size: 0.875rem;
@@ -163,55 +221,105 @@
             margin: 1rem 0;
         }
         
-        footer {
+        /* Футер */
+        .footer {
             text-align: center;
             padding: 2rem;
             color: white;
             margin-top: 3rem;
         }
         
+        /* Адаптивность */
         @media (max-width: 768px) {
-            .nav-links {
-                margin-top: 1rem;
+            .main-container {
+                flex-direction: column;
+                padding: 0 1rem;
             }
             
-            .container {
-                padding: 0 1rem;
+            .sidebar {
+                width: 100%;
+            }
+            
+            .menu-card {
+                position: static;
             }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="nav-brand">RPG Portal</div>
-        <div class="nav-links">
-            <a href="/">Главная</a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'profiles:profile_detail' user.profile.pk %}">Мой профиль</a>
-                <a href="{% url 'profiles:profile_edit' %}">Редактировать</a>
-                <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit">Выйти</button>
-                </form>
-            {% else %}
-                <a href="{% url 'profiles:signup' %}">Регистрация</a>
-                <a href="{% url 'login' %}">Вход</a>
-            {% endif %}
-        </div>
-    </nav>
+    <!-- ШАПКА (только название) -->
+    <header class="header">
+        <a href="/" class="header-brand">🎲 RPG Portal</a>
+    </header>
     
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+    <!-- ОСНОВНОЙ КОНТЕЙНЕР С ДВУМЯ КОЛОНКАМИ -->
+    <div class="main-container">
         
-        {% block content %}
-        {% endblock %}
+        <!-- ЛЕВАЯ КОЛОНКА - МЕНЮ -->
+        <aside class="sidebar">
+            <div class="menu-card">
+                <div class="menu-title">📋 Меню</div>
+                
+                {% if user.is_authenticated %}
+                    <div class="user-info">
+                        <div>👤 <span class="username">{{ user.username }}</span></div>
+                        <div style="font-size: 0.8rem; color: #666;">Вы авторизованы</div>
+                    </div>
+                {% endif %}
+                
+                <ul class="menu-list">
+                    <li><a href="/">🏠 Главная</a></li>
+                    <li><a href="#">📖 Статьи</a></li>
+                    <li><a href="#">🎮 Игровые системы</a></li>
+                    <li><a href="#">⚔️ Классы персонажей</a></li>
+                    <li><a href="#">📚 Правила</a></li>
+                </ul>
+                
+                <div class="menu-divider"></div>
+                
+                <ul class="menu-list">
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'profiles:profile_detail' user.profile.pk %}">👤 Мой профиль</a></li>
+                        <li><a href="{% url 'profiles:profile_edit' %}">✏️ Редактировать профиль</a></li>
+                        <li><a href="{% url 'password_change' %}">🔑 Сменить пароль</a></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="width: 100%; text-align: left; background: none; border: none; padding: 0.6rem 0.8rem; cursor: pointer; color: #e53e3e; font-size: 1rem;">
+                                    🚪 Выйти
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'profiles:signup' %}">📝 Регистрация</a></li>
+                        <li><a href="{% url 'login' %}">🔐 Вход</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- ПРАВАЯ КОЛОНКА - КОНТЕНТ -->
+        <main class="content-area">
+            <!-- ТЕСТОВОЕ СООБЩЕНИЕ -->
+            <div class="test-message">
+                <h3>✨ Добро пожаловать в RPG Portal!</h3>
+                <p>Это тестовое сообщение. Здесь будет отображаться основной контент портала: статьи, новости, игровые системы и многое другое.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem;">🎯 Левое меню содержит навигацию, а в этой колонке будет основной контент.</p>
+            </div>
+            
+            <!-- ОСНОВНОЙ БЛОК КОНТЕНТА (переопределяется дочерними шаблонами) -->
+            <div class="content-card">
+                {% block content %}
+                <h1>Добро пожаловать в RPG Portal</h1>
+                <p>Выберите раздел в левом меню.</p>
+                {% endblock %}
+            </div>
+        </main>
+        
     </div>
     
-    <footer>
+    <!-- ФУТЕР -->
+    <footer class="footer">
         <p>&copy; 2026 RPG Portal. Все права защищены.</p>
     </footer>
 </body>
