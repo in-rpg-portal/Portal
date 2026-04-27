@@ -2,6 +2,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
+import hashlib
+import os
+from django.core.files.uploadedfile import UploadedFile
 
 class SignUpForm(UserCreationForm):
     """Форма регистрации нового пользователя"""
@@ -21,7 +24,6 @@ class SignUpForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Добавляем CSS классы к полям
         for field_name in self.fields:
             if field_name != 'bio':
                 self.fields[field_name].widget.attrs['class'] = 'form-input'
@@ -35,7 +37,6 @@ class SignUpForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            # Сохраняем bio в профиль
             profile = user.profile
             profile.bio = self.cleaned_data['bio']
             profile.save()
@@ -60,13 +61,30 @@ class ProfileEditForm(forms.ModelForm):
         """Валидация загружаемого файла"""
         avatar = self.cleaned_data.get('avatar')
         if avatar:
-            # Проверка размера файла (не более 5MB)
-            if avatar.size > 5 * 1024 * 1024:
-                raise forms.ValidationError('Размер файла не должен превышать 5MB')
+            # Проверка размера файла (не более 1MB = 1048576 байт)
+            if avatar.size > 1 * 1024 * 1024:
+                raise forms.ValidationError('Размер файла не должен превышать 1MB')
             
             # Проверка типа файла
             valid_types = ['image/jpeg', 'image/png', 'image/gif']
             if avatar.content_type not in valid_types:
                 raise forms.ValidationError('Поддерживаются только JPEG, PNG и GIF изображения')
+            
+            # Генерируем хеш имени файла
+            import hashlib
+            import os
+            from django.utils import timezone
+            
+            # Получаем расширение файла
+            ext = os.path.splitext(avatar.name)[1].lower()
+            
+            # Создаём уникальную строку: username + текущее время
+            unique_string = f"{self.instance.user.username}_{timezone.now().timestamp()}"
+            
+            # Генерируем 32-битный хеш (MD5 даёт 32 символа)
+            hash_name = hashlib.md5(unique_string.encode()).hexdigest() + ext
+            
+            # Переименовываем файл
+            avatar.name = hash_name
         
         return avatar

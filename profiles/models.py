@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import os
+import hashlib
+from django.utils import timezone
 
 class Profile(models.Model):
     """Профиль пользователя, расширяющий стандартную модель User"""
@@ -14,7 +16,7 @@ class Profile(models.Model):
         upload_to='avatars/', 
         blank=True, 
         null=True,
-        help_text='Загрузите изображение (jpg, png, gif)'
+        help_text='Загрузите изображение (jpg, png, gif) до 1MB'
     )
     
     class Meta:
@@ -31,7 +33,11 @@ class Profile(models.Model):
     def delete_old_avatar(self):
         """Удаляет старый файл аватара, если он существует"""
         if self.avatar and os.path.isfile(self.avatar.path):
-            os.remove(self.avatar.path)
+            try:
+                os.remove(self.avatar.path)
+                print(f"Старый аватар удалён: {self.avatar.path}")
+            except Exception as e:
+                print(f"Ошибка удаления аватара: {e}")
     
     def save(self, *args, **kwargs):
         # Если профиль уже существует (есть pk), проверяем аватар
@@ -42,18 +48,17 @@ class Profile(models.Model):
                 if old_avatar and old_avatar != self.avatar:
                     if os.path.isfile(old_avatar.path):
                         os.remove(old_avatar.path)
+                        print(f"Старый аватар удалён при сохранении: {old_avatar.path}")
             except Profile.DoesNotExist:
                 pass
         super().save(*args, **kwargs)
 
-# Сигнал для автоматического создания профиля при создании пользователя
+# Сигналы
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    """Автоматически создаёт профиль, когда создаётся новый пользователь"""
     if created:
         Profile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    """Автоматически сохраняет профиль при сохранении пользователя"""
     instance.profile.save()
