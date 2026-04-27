@@ -8,17 +8,14 @@
     <h1>Профиль пользователя</h1>
     
     <div class="profile-header">
-        <!-- АВАТАР -->
-        <div class="avatar-container" style="text-align: center; margin-bottom: 1rem;">
-            {% if profile.avatar %}
-                <img src="{{ profile.avatar.url }}" alt="Аватар {{ profile.user.username }}" 
-                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea;">
-            {% else %}
-                <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
-                    {{ profile.user.username|first|upper }}
-                </div>
-            {% endif %}
-        </div>
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="Аватар {{ profile.user.username }}" 
+                 style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea;">
+        {% else %}
+            <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
+                {{ profile.user.username|first|upper }}
+            </div>
+        {% endif %}
         
         <h2>{{ profile.user.username }}</h2>
         <p style="color: #666;">Пользователь с {{ profile.created_at|date:"d.m.Y" }}</p>
@@ -34,5 +31,11 @@
         <p><strong>📅 Дата регистрации:</strong> {{ profile.user.date_joined|date:"d.m.Y H:i" }}</p>
         <p><strong>🕐 Последний вход:</strong> {{ profile.user.last_login|date:"d.m.Y H:i"|default:"Никогда" }}</p>
     </div>
+    
+    {% if user == profile.user %}
+    <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
+        <a href="{% url 'password_change' %}" class="btn" style="background: #ed8936; color: white;">🔑 Сменить пароль</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

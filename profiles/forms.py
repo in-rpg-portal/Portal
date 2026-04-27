@@ -5,6 +5,7 @@ from .models import Profile
 import hashlib
 import os
 from django.core.files.uploadedfile import UploadedFile
+from django.contrib.auth.forms import PasswordChangeForm
 
 class SignUpForm(UserCreationForm):
     """Форма регистрации нового пользователя"""
@@ -88,3 +89,15 @@ class ProfileEditForm(forms.ModelForm):
             avatar.name = hash_name
         
         return avatar
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """Кастомная форма смены пароля с изменённым оформлением"""
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in self.fields:
+            self.fields[field_name].widget.attrs['class'] = 'form-input'
+        
+        self.fields['old_password'].widget.attrs['placeholder'] = 'Введите старый пароль'
+        self.fields['new_password1'].widget.attrs['placeholder'] = 'Введите новый пароль'
+        self.fields['new_password2'].widget.attrs['placeholder'] = 'Повторите новый пароль'    
