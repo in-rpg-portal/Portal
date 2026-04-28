@@ -3,8 +3,14 @@ from django.contrib.admin import action
 from django.utils import timezone
 from .models import Directory, Field, Record, RecordValue
 
+# Базовый класс для отображения всех объектов (включая удалённые)
+class AllObjectsModelAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        # Используем менеджер all_objects, который возвращает все записи (в т.ч. is_deleted=True)
+        return self.model.all_objects.all()
+
 @admin.register(Directory)
-class DirectoryAdmin(admin.ModelAdmin):
+class DirectoryAdmin(AllObjectsModelAdmin):
     list_display = ('name', 'slug', 'is_deleted', 'created_at')
     list_filter = ('is_deleted',)
     search_fields = ('name', 'slug')
@@ -29,7 +35,7 @@ class DirectoryAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} справочников удалено навсегда.")
 
 @admin.register(Field)
-class FieldAdmin(admin.ModelAdmin):
+class FieldAdmin(AllObjectsModelAdmin):
     list_display = ('name', 'directory', 'field_type', 'is_required', 'is_deleted')
     list_filter = ('directory', 'field_type', 'is_deleted')
     actions = ['soft_delete_selected', 'restore_selected', 'hard_delete_selected']
@@ -50,7 +56,7 @@ class FieldAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} полей удалено навсегда.")
 
 @admin.register(Record)
-class RecordAdmin(admin.ModelAdmin):
+class RecordAdmin(AllObjectsModelAdmin):
     list_display = ('id', 'directory', 'is_deleted', 'created_at')
     list_filter = ('directory', 'is_deleted')
     actions = ['soft_delete_selected', 'restore_selected', 'hard_delete_selected']
@@ -71,7 +77,7 @@ class RecordAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} записей удалено навсегда.")
 
 @admin.register(RecordValue)
-class RecordValueAdmin(admin.ModelAdmin):
+class RecordValueAdmin(AllObjectsModelAdmin):
     list_display = ('record', 'field', 'value_preview', 'is_deleted')
     list_filter = ('field__directory', 'field', 'is_deleted')
     search_fields = ('value',)
