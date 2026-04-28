@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Удалить запись{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Удалить запись #{{ record.id }}</h1>
+    <p>Справочник: {{ directory.name }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Выберите тип удаления:</label>
+            <label><input type="radio" name="delete_type" value="soft" checked> Мягкое удаление (скрыть)</label><br>
+            {% if perms.directories.can_hard_delete_record %}
+            <label><input type="radio" name="delete_type" value="hard"> Полное удаление (безвозвратно, с файлами изображений)</label>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary" style="background:#f56565;">Удалить</button>
+        <a href="{% url 'directories:record_list' directory.slug %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+{% endblock %}

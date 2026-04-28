@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} для «{{ directory.name }}»{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>{{ title }} для справочника «{{ directory.name }}»</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                {% endif %}
+                {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="{% url 'directories:field_list' directory.slug %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+
+<script>
+    // Показывать/скрывать настройки изображения в зависимости от типа поля
+    const fieldType = document.querySelector('#id_field_type');
+    const imageSettings = document.querySelector('.field-thumb_width, .field-thumb_height, .field-max_size_mb').closest('.form-group');
+    const referenceSettings = document.querySelector('#id_reference_directory').closest('.form-group');
+    
+    function toggleSettings() {
+        if (fieldType.value === 'image') {
+            if(imageSettings) imageSettings.style.display = 'block';
+            if(referenceSettings) referenceSettings.style.display = 'none';
+        } else if (fieldType.value === 'reference') {
+            if(imageSettings) imageSettings.style.display = 'none';
+            if(referenceSettings) referenceSettings.style.display = 'block';
+        } else {
+            if(imageSettings) imageSettings.style.display = 'none';
+            if(referenceSettings) referenceSettings.style.display = 'none';
+        }
+    }
+    if (fieldType) {
+        fieldType.addEventListener('change', toggleSettings);
+        toggleSettings();
+    }
+</script>
+{% endblock %}

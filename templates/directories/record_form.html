@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} в «{{ directory.name }}»{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>{{ title }} в справочнике «{{ directory.name }}»</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.field.widget.input_type == 'file' and field.value %}
+                    <div style="margin-top: 5px;">
+                        <img src="/media/{{ field.value }}" alt="current" style="max-width: 100px;">
+                        <br><small>Текущее изображение</small>
+                    </div>
+                {% endif %}
+                {% if field.errors %}
+                    <ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                {% endif %}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="{% url 'directories:record_list' directory.slug %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+{% endblock %}

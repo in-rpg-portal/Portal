@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}RPG Portal{% endblock %}</title>
+    <title>{% block title %}Portal{% endblock %}</title>
     <style>
         * {
             margin: 0;
@@ -365,7 +365,7 @@
 <body>
     <!-- ШАПКА (только название) -->
     <header class="header">
-        <a href="/" class="header-brand">🎲 RPG Portal</a>
+        <a href="/" class="header-brand">🎲 Portal</a>
     </header>
     
     <!-- ОСНОВНОЙ КОНТЕЙНЕР С ТРЕМЯ КОЛОНКАМИ -->
@@ -377,11 +377,7 @@
                 <div class="menu-title">📋 Меню</div>
                 <ul class="menu-list">
                     <li><a href="/">🏠 Главная</a></li>
-                    <li><a href="#">📖 Статьи</a></li>
-                    <li><a href="#">🎮 Игровые системы</a></li>
-                    <li><a href="#">⚔️ Классы персонажей</a></li>
-                    <li><a href="#">📚 Правила</a></li>
-                    <li><a href="#">🗺️ Лор мира</a></li>
+                    <li><a href="{% url 'directories:directory_list' %}">📚 Справочники</a></li>
                 </ul>
                 <div class="menu-divider"></div>
                 <ul class="menu-list">
@@ -395,7 +391,7 @@
         <main class="content-center">
             {% block content %}
             <div class="content-card">
-                <h1>Добро пожаловать в RPG Portal</h1>
+                <h1>Добро пожаловать в Portal</h1>
                 <p>Выберите раздел в левом меню.</p>
             </div>
             {% endblock %}
@@ -465,7 +461,7 @@
     
     <!-- ФУТЕР -->
     <footer class="footer">
-        <p>&copy; 2026 RPG Portal. Все права защищены.</p>
+        <p>&copy; 2026 Portal. Все права защищены.</p>
     </footer>
 </body>
 </html>

@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('profiles/', include('profiles.urls')),
+    path('directories/', include('directories.urls')),
     
     # Кастомная форма смены пароля
     path('accounts/password_change/', 

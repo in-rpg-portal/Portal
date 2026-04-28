@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Записи справочника «{{ directory.name }}»{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>📄 Записи справочника «{{ directory.name }}»</h1>
+    <div style="margin-bottom: 1rem;">
+        {% if perms.directories.add_record %}
+            <a href="{% url 'directories:record_create' directory.slug %}" class="btn btn-primary">➕ Создать запись</a>
+        {% endif %}
+        <a href="{% url 'directories:directory_list' %}" class="btn" style="background:#a0aec0;">← Назад к справочникам</a>
+    </div>
+
+    {% if records_data %}
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    {% if text_field %}<th>{{ text_field.name }}</th>{% endif %}
+                    {% if image_field %}<th>{{ image_field.name }}</th>{% endif %}
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in records_data %}
+                <tr>
+                    <td>{{ item.record.id }}</td>
+                    {% if text_field %}
+                        <td>{{ item.text_value|default:"—" }}</td>
+                    {% endif %}
+                    {% if image_field %}
+                        <td>
+                            {% if item.image_path %}
+                                <img src="/media/{{ item.image_path }}" alt="thumb" style="max-width: 50px; max-height: 50px;">
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    <td style="white-space: nowrap;">
+                        <a href="{% url 'directories:record_detail' directory.slug item.record.id %}" class="btn" style="background:#3182ce; color:white; padding:2px 8px;">Просмотр</a>
+                        {% if perms.directories.change_record %}
+                            <a href="{% url 'directories:record_edit' directory.slug item.record.id %}" class="btn" style="background:#ed8936; color:white; padding:2px 8px;">✏️</a>
+                        {% endif %}
+                        {% if perms.directories.delete_record %}
+                            <a href="{% url 'directories:record_soft_delete' directory.slug item.record.id %}" class="btn" style="background:#f56565; color:white; padding:2px 8px;">🗑️</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>В справочнике пока нет записей. <a href="{% url 'directories:record_create' directory.slug %}">Создайте первую запись</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

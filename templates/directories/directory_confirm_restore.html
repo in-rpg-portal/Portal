@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Восстановить справочник{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Восстановить справочник</h1>
+    <p>Вы уверены, что хотите восстановить справочник <strong>{{ object.name }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Восстановить</button>
+        <a href="{% url 'directories:directory_list' %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+{% endblock %}

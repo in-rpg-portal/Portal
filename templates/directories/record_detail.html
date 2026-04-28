@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Запись #{{ record.id }} - {{ directory.name }}{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Запись справочника «{{ directory.name }}»</h1>
+    <table style="width:100%; border-collapse: collapse;">
+        {% for v in values %}
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+            <th style="text-align: left; padding: 8px; width: 200px;">{{ v.field.name }}</th>
+            <td style="padding: 8px;">
+                {% if v.field.field_type == 'image' and v.value %}
+                    <a href="/media/{{ v.value }}" target="_blank">
+                        <img src="/media/{{ v.value|slice:'-4'|add:'_th'|slice:'0:-4' }}{{ v.value|slice:'-4' }}" alt="thumb" style="max-width: 100px;">
+                    </a>
+                {% elif v.field.field_type == 'boolean' %}
+                    {{ v.display }}
+                {% elif v.field.field_type == 'reference' %}
+                    <a href="{% url 'directories:record_detail' v.field.reference_directory.slug v.value %}">{{ v.display }}</a>
+                {% else %}
+                    {{ v.display }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div style="margin-top: 1rem;">
+        <a href="{% url 'directories:record_edit' directory.slug record.id %}" class="btn btn-primary">✏️ Редактировать</a>
+        <a href="{% url 'directories:record_soft_delete' directory.slug record.id %}" class="btn" style="background:#f56565; color:white;">🗑️ Удалить</a>
+        <a href="{% url 'directories:record_list' directory.slug %}" class="btn" style="background:#a0aec0;">← К списку</a>
+    </div>
+</div>
+{% endblock %}

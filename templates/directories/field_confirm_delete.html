@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Удалить поле{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Удалить поле «{{ field.name }}»</h1>
+    <p>Справочник: <strong>{{ directory.name }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Выберите тип удаления:</label>
+            <label><input type="radio" name="delete_type" value="soft" checked> Мягкое удаление (скрыть)</label><br>
+            {% if perms.directories.can_hard_delete_field %}
+            <label><input type="radio" name="delete_type" value="hard"> Полное удаление (безвозвратно, все значения и файлы изображений будут удалены)</label>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary" style="background:#f56565;">Удалить</button>
+        <a href="{% url 'directories:field_list' directory.slug %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+{% endblock %}

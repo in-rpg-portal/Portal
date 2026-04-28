@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Удалить справочник{% endblock %}
+{% block content %}
+<div class="content-card">
+    <h1>Удалить справочник «{{ object.name }}»</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Выберите тип удаления:</label>
+            <label><input type="radio" name="delete_type" value="soft" checked> Мягкое удаление (скрыть от пользователей)</label><br>
+            {% if perms.directories.can_hard_delete_directory %}
+            <label><input type="radio" name="delete_type" value="hard"> Полное удаление (безвозвратно, с файлами)</label>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary" style="background:#f56565;">Удалить</button>
+        <a href="{% url 'directories:directory_list' %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+{% endblock %}
