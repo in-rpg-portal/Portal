@@ -22,8 +22,7 @@ class DirectoryForm(forms.ModelForm):
 class FieldForm(forms.ModelForm):
     class Meta:
         model = Field
-        fields = ('name', 'description', 'field_type', 'reference_directory',
-                  'is_required', 'position', 'thumb_width', 'thumb_height', 'max_size_mb')
+        fields = ('name', 'description', 'field_type', 'reference_directory', 'is_required', 'position', 'thumb_width', 'thumb_height', 'max_size_mb', 'max_length')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
@@ -34,6 +33,7 @@ class FieldForm(forms.ModelForm):
             'thumb_width': forms.NumberInput(attrs={'class': 'form-input'}),
             'thumb_height': forms.NumberInput(attrs={'class': 'form-input'}),
             'max_size_mb': forms.NumberInput(attrs={'class': 'form-input'}),
+            'max_length': forms.NumberInput(attrs={'class': 'form-input'}),
         }
 
     def clean(self):
@@ -44,6 +44,15 @@ class FieldForm(forms.ModelForm):
         if field_type != 'image':
             cleaned_data['thumb_width'] = None
             cleaned_data['thumb_height'] = None
+        # Валидация для строки: max_length обязателен и не менее 1
+        if field_type == 'string':
+            max_length = cleaned_data.get('max_length')
+            if not max_length:
+                self.add_error('max_length', 'Для типа "Короткая строка" укажите максимальную длину.')
+            elif max_length < 1:
+                self.add_error('max_length', 'Длина должна быть положительным числом.')
+        else:
+            cleaned_data['max_length'] = None   # для других типов сбрасываем
         return cleaned_data
 
 class RecordForm(forms.ModelForm):
@@ -62,7 +71,14 @@ class RecordForm(forms.ModelForm):
             self.fields_dict[field.id] = field
 
             # Определяем виджет и тип поля
-            if field.field_type == 'text':
+            if field.field_type == 'string':
+                self.fields[field_name] = forms.CharField(
+                    required=field.is_required,
+                    max_length=field.max_length or 255,
+                    widget=forms.TextInput(attrs={'class': 'form-input'}),
+                    label=field.name
+                )
+            elif field.field_type == 'text':
                 # Используем CKEditor5Widget для текстовых полей
                 self.fields[field_name] = forms.CharField(
                     required=field.is_required,

@@ -9,7 +9,11 @@
         <tr style="border-bottom: 1px solid #e2e8f0;">
             <th style="text-align: left; padding: 8px; width: 200px;">{{ v.field.name }}</th>
             <td style="padding: 8px;">
-                {% if v.field.field_type == 'image' and v.value %}
+                {% if v.field.field_type == 'text' %}
+                    {{ v.display|safe }}
+                {% elif v.field.field_type == 'string' %}
+                    {{ v.display|escape }}
+                {% elif v.field.field_type == 'image' and v.value %}
                     <a href="/media/{{ v.value }}" target="_blank">
                         <img src="/media/{{ v.value|slice:'-4'|add:'_th'|slice:'0:-4' }}{{ v.value|slice:'-4' }}" alt="thumb" style="max-width: 100px;">
                     </a>
@@ -21,7 +25,7 @@
                     {{ v.display }}
                 {% endif %}
             </td>
-        </tr>
+         </tr>
         {% endfor %}
     </table>
     <div style="margin-top: 1rem;">

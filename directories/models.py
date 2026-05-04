@@ -67,6 +67,7 @@ class Directory(models.Model):
 
 class Field(models.Model):
     FIELD_TYPES = [
+        ('string', 'Короткая строка'),
         ('text', 'Текст'),
         ('number', 'Число'),
         ('date', 'Дата'),
@@ -78,10 +79,16 @@ class Field(models.Model):
     name = models.CharField('Название поля', max_length=100)
     description = models.CharField('Описание', max_length=200, blank=True)
     field_type = models.CharField('Тип поля', max_length=20, choices=FIELD_TYPES, default='text')
-    reference_directory = models.ForeignKey(Directory, on_delete=models.SET_NULL, null=True, blank=True,
-                                            related_name='referencing_fields', verbose_name='Справочник-источник')
+    reference_directory = models.ForeignKey(Directory, on_delete=models.SET_NULL, null=True, blank=True, related_name='referencing_fields', verbose_name='Справочник-источник')
     is_required = models.BooleanField('Обязательное', default=False)
     position = models.PositiveIntegerField('Позиция', default=0)
+
+    # Для типа string
+    max_length = models.PositiveIntegerField(
+        'Максимальная длина',
+        null=True, blank=True,
+        help_text='Для типа "Короткая строка": максимальное количество символов (по умолчанию 255)'
+    )
     # Для типа image
     thumb_width = models.PositiveIntegerField('Ширина миниатюры', null=True, blank=True, default=100)
     thumb_height = models.PositiveIntegerField('Высота миниатюры', null=True, blank=True, default=100)

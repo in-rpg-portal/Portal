@@ -16,27 +16,42 @@
                 {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
             </div>
         {% endfor %}
+        <div class="form-group field-max_length" style="display: none;">
+            {{ form.max_length.label_tag }}
+            {{ form.max_length }}
+            {% if form.max_length.errors %}
+                <ul class="errorlist">{% for error in form.max_length.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <small>Максимальное количество символов (для типа "Короткая строка")</small>
+        </div>
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{% url 'directories:field_list' directory.slug %}" class="btn" style="background:#a0aec0;">Отмена</a>
     </form>
 </div>
 
 <script>
-    // Показывать/скрывать настройки изображения в зависимости от типа поля
     const fieldType = document.querySelector('#id_field_type');
     const imageSettings = document.querySelector('.field-thumb_width, .field-thumb_height, .field-max_size_mb').closest('.form-group');
     const referenceSettings = document.querySelector('#id_reference_directory').closest('.form-group');
-    
+    const maxLengthGroup = document.querySelector('.field-max_length');
+
     function toggleSettings() {
         if (fieldType.value === 'image') {
             if(imageSettings) imageSettings.style.display = 'block';
             if(referenceSettings) referenceSettings.style.display = 'none';
+            if(maxLengthGroup) maxLengthGroup.style.display = 'none';
         } else if (fieldType.value === 'reference') {
             if(imageSettings) imageSettings.style.display = 'none';
             if(referenceSettings) referenceSettings.style.display = 'block';
+            if(maxLengthGroup) maxLengthGroup.style.display = 'none';
+        } else if (fieldType.value === 'string') {
+            if(imageSettings) imageSettings.style.display = 'none';
+            if(referenceSettings) referenceSettings.style.display = 'none';
+            if(maxLengthGroup) maxLengthGroup.style.display = 'block';
         } else {
             if(imageSettings) imageSettings.style.display = 'none';
             if(referenceSettings) referenceSettings.style.display = 'none';
+            if(maxLengthGroup) maxLengthGroup.style.display = 'none';
         }
     }
     if (fieldType) {

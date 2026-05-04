@@ -36,7 +36,7 @@ class DirectoryAdmin(AllObjectsModelAdmin):
 
 @admin.register(Field)
 class FieldAdmin(AllObjectsModelAdmin):
-    list_display = ('name', 'directory', 'field_type', 'is_required', 'is_deleted')
+    list_display = ('name', 'directory', 'field_type', 'is_required', 'max_length', 'is_deleted')
     list_filter = ('directory', 'field_type', 'is_deleted')
     actions = ['soft_delete_selected', 'restore_selected', 'hard_delete_selected']
 
