@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django_ckeditor_5.widgets import CKEditor5Widget   # <-- добавить импорт
 from .models import Directory, Field, Record, RecordValue
 from .utils import save_image_with_thumbnail, delete_image_and_thumbnail
 
@@ -62,9 +63,10 @@ class RecordForm(forms.ModelForm):
 
             # Определяем виджет и тип поля
             if field.field_type == 'text':
+                # Используем CKEditor5Widget для текстовых полей
                 self.fields[field_name] = forms.CharField(
                     required=field.is_required,
-                    widget=forms.TextInput(attrs={'class': 'form-input'}),
+                    widget=CKEditor5Widget(config_name='default'),  # <-- замена виджета
                     label=field.name
                 )
             elif field.field_type == 'number':

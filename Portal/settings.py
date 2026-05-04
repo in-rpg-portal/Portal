@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'core',
     'profiles',
     'directories',
+    'django_ckeditor_5',
 ]
 
 MIDDLEWARE = [
@@ -110,3 +111,34 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'    # папка для сборки (coll
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Максимальный размер загружаемых файлов (в МБ)
+CKEDITOR_5_MAX_SIZE_MB = 2
+# Разрешённые расширения
+CKEDITOR_5_ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']
+# Конфигурация CKEditor 5 с указанием кастомного URL загрузки
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', 'insertTable', 'undo', 'redo'],
+        'image': {
+            'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight'],
+            'styles': ['alignLeft', 'alignCenter', 'alignRight']
+        },
+        'simpleUpload': {
+            'uploadUrl': '/ckeditor5/upload/',   # URL нашей кастомной view
+        },
+        'heading': {
+            'options': [
+                {'model': 'paragraph', 'title': 'Параграф', 'class': 'ck-heading_paragraph'},
+                {'model': 'heading1', 'view': 'h1', 'title': 'Заголовок 1', 'class': 'ck-heading_heading1'},
+                {'model': 'heading2', 'view': 'h2', 'title': 'Заголовок 2', 'class': 'ck-heading_heading2'},
+                {'model': 'heading3', 'view': 'h3', 'title': 'Заголовок 3', 'class': 'ck-heading_heading3'},
+            ]
+        },
+        'language': 'ru',
+    }
+}
+# Настройка загрузки изображений (стандартная, позже заменим на кастомную)
+CKEDITOR_5_UPLOAD_PATH = 'uploads/'
+CKEDITOR_5_FILE_STORAGE = 'django.core.files.storage.DefaultStorage'
+CK_EDITOR_5_UPLOAD_FILE_VIEW_NAME = "ckeditor5_upload"

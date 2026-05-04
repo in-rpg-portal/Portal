@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 from .utils import delete_image_and_thumbnail
+from django_ckeditor_5.fields import CKEditor5Field
 
 class SoftDeleteManager(models.Manager):
     """Менеджер, исключающий удалённые объекты"""

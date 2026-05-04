@@ -4,10 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from profiles.forms import CustomPasswordChangeForm
+from core.ckeditor_views import custom_ckeditor_upload
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
+    path('ckeditor5/upload/', custom_ckeditor_upload, name='ckeditor5_upload'),
     path('profiles/', include('profiles.urls')),
     path('directories/', include('directories.urls')),
     
