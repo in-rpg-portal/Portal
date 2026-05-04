@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django_ckeditor_5.widgets import CKEditor5Widget   # <-- добавить импорт
 from .models import Directory, Field, Record, RecordValue
-from .utils import save_image_with_thumbnail, delete_image_and_thumbnail
+from .utils import save_image_with_thumbnail, delete_image_and_thumbnail, pretty_html
 
 class DirectoryForm(forms.ModelForm):
     class Meta:
@@ -187,6 +187,9 @@ class RecordForm(forms.ModelForm):
                     else:
                         # Если файл не загружен и поле обязательное – ошибка будет выше
                         continue
+                elif field.field_type == 'text':
+                    # Добавляем форматирование HTML
+                    str_value = pretty_html(raw_value) if raw_value else ''
                 else:
                     str_value = str(raw_value) if raw_value is not None else ''
                 RecordValue.objects.update_or_create(

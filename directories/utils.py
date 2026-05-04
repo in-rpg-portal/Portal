@@ -76,3 +76,16 @@ def delete_image_and_thumbnail(relative_path: str):
     for f in [original_full, thumb_full]:
         if os.path.exists(f):
             os.remove(f)
+
+def pretty_html(html_string):
+    """
+    Добавляет переносы строк после каждого закрывающего тега и перед каждым открывающим.
+    Превращает <p>text</p><p>text2</p> в <p>text</p>\n<p>text2</p>
+    """
+    if not html_string:
+        return html_string
+    # Замена >< на >\n< (закрывающий тег, перенос, следующий открывающий)
+    result = html_string.replace('><', '>\n<')
+    # Дополнительно можно обработать самозакрывающиеся теги: /> без детей
+    result = result.replace('/><', '/>\n<')
+    return result            
