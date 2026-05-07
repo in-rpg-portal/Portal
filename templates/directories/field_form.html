@@ -6,7 +6,7 @@
     <h1>{{ title }} для справочника «{{ directory.name }}»</h1>
     <form method="post">
         {% csrf_token %}
-        
+        {{ form.media }}
         {# Поля, которые всегда отображаются #}
         <div class="form-group">
             {{ form.name.label_tag }}

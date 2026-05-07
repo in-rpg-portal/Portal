@@ -11,7 +11,9 @@ class DirectoryForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'slug': forms.TextInput(attrs={'class': 'form-input'}),
-            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}),
+            #'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}), #Стандартная форма для поля TextArea
+            #'description': CKEditor5Widget(config_name='default', attrs={'class': 'form-input'}),
+            'description': CKEditor5Widget(config_name='default', attrs={'class': 'form-input django_ckeditor_5'}),
         }
 
     def clean_slug(self):
@@ -34,7 +36,9 @@ class FieldForm(forms.ModelForm):
                   'is_required', 'position', 'thumb_width', 'thumb_height', 'max_size_mb')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
-            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            #'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),  #Стандартная форма для поля TextArea
+            #'description': CKEditor5Widget(config_name='default', attrs={'class': 'form-input'}),
+            'description': CKEditor5Widget(config_name='default', attrs={'class': 'form-input django_ckeditor_5'}),
             'field_type': forms.Select(attrs={'class': 'form-input'}),
             'reference_directory': forms.Select(attrs={'class': 'form-input'}),
             'is_required': forms.CheckboxInput(attrs={'class': 'form-input', 'style': 'width: auto;'}),

@@ -11,7 +11,7 @@ class TaskForm(forms.ModelForm):
                   'assignee', 'deadline', 'estimated_hours', 'actual_hours')
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input'}),
-            'description': CKEditor5Widget(config_name='default', attrs={'class': 'form-input'}),
+            'description': CKEditor5Widget(config_name='default', attrs={'class': 'form-input django_ckeditor_5'}),
             'task_type': forms.Select(attrs={'class': 'form-input'}),
             'status': forms.Select(attrs={'class': 'form-input'}),
             'priority': forms.Select(attrs={'class': 'form-input'}),
