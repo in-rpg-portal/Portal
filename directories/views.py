@@ -143,7 +143,7 @@ def field_hard_delete(request, slug, pk):
 def record_list(request, slug):
     directory = get_object_or_404(Directory, slug=slug)
     records = directory.records.all()
-    text_field = directory.fields.filter(field_type='text').first()
+    text_field = directory.fields.filter(field_type__in=['text', 'string']).first()
     image_field = directory.fields.filter(field_type='image').first()
     
     records_data = []
@@ -168,7 +168,7 @@ def record_list(request, slug):
 def record_create(request, slug):
     directory = get_object_or_404(Directory, slug=slug)
     if request.method == 'POST':
-        form = RecordForm(directory, request.POST, request.FILES)
+        form = RecordForm(directory, request.POST, request.FILES, user=request.user)
         if form.is_valid():
             record = form.save(commit=False)
             record.directory = directory
@@ -185,7 +185,7 @@ def record_edit(request, slug, pk):
     directory = get_object_or_404(Directory, slug=slug)
     record = get_object_or_404(Record, pk=pk, directory=directory)
     if request.method == 'POST':
-        form = RecordForm(directory, request.POST, request.FILES, instance=record)
+        form = RecordForm(directory, request.POST, request.FILES, instance=record, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Запись обновлена.')

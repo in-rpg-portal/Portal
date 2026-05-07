@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Задачи{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>📋 Задачи</h1>
+    <div style="margin-bottom: 1rem;">
+        <a href="{% url 'tasks:task_create' %}" class="btn btn-primary">➕ Новая задача</a>
+    </div>
+
+    <form method="get" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <input type="text" name="status" placeholder="Фильтр по статусу (slug)" class="form-input" style="width: auto;">
+            <input type="text" name="type" placeholder="Тип (slug)" class="form-input" style="width: auto;">
+            <input type="text" name="priority" placeholder="Приоритет (slug)" class="form-input" style="width: auto;">
+            <input type="number" name="assignee" placeholder="ID исполнителя" class="form-input" style="width: auto;">
+            <input type="number" name="author" placeholder="ID автора" class="form-input" style="width: auto;">
+            <button type="submit" class="btn btn-primary">Фильтр</button>
+        </div>
+    </form>
+
+    {% if page_obj.object_list %}
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Голоса</th><th>Заголовок</th><th>Тип</th><th>Статус</th><th>Приоритет</th><th>Исполнитель</th><th>Дедлайн</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in page_obj %}
+                <tr>
+                    <td>{{ task.total_votes }} \ <a href="{% url 'tasks:task_detail' slug=task.slug %}">{{ task.title }}</a></td>
+                    <td>{{ task.type_display }}</td>
+                    <td>{{ task.status_display }}</td>
+                    <td>{{ task.priority_display }}</td>
+                    <td>{{ task.assignee|default:"—" }}</td>
+                    <td>{{ task.deadline|date:"d.m.Y"|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            {% if page_obj.has_previous %}<a href="?page=1">&laquo; первая</a>{% endif %}
+            {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">назад</a>{% endif %}
+            <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">вперёд</a>{% endif %}
+            {% if page_obj.has_next %}<a href="?page={{ page_obj.paginator.num_pages }}">последняя &raquo;</a>{% endif %}
+        </div>
+    {% else %}
+        <p>Задач пока нет. <a href="{% url 'tasks:task_create' %}">Создайте первую</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

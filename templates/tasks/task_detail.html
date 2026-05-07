@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>{{ task.title }}</h1>
+    <p><strong>Тип:</strong> {{ task.type_display }}</p>
+    <p><strong>Статус:</strong> {{ task.status_display }}</p>
+    <p><strong>Приоритет:</strong> {{ task.priority_display }}</p>
+    <p><strong>Автор:</strong> {{ task.author.username }}</p>
+    <p><strong>Исполнитель:</strong> {{ task.assignee|default:"не назначен" }}</p>
+    <p><strong>Создана:</strong> {{ task.created_at|date:"d.m.Y H:i" }}</p>
+    <p><strong>Дедлайн:</strong> {{ task.deadline|date:"d.m.Y H:i"|default:"не задан" }}</p>
+    <p><strong>План (ч):</strong> {{ task.estimated_hours|default:"—" }}</p>
+    <p><strong>Факт (ч):</strong> {{ task.actual_hours|default:"—" }}</p>
+    <p><strong>Голосов (рейтинг):</strong> <span id="vote-count">{{ task.total_votes }}</span></p>
+    <div class="vote-buttons">
+        {% if user.is_authenticated %}
+            <button id="vote-up" class="btn btn-primary">👍 +1</button>
+            <button id="vote-down" class="btn btn-secondary">👎 -1</button>
+        {% endif %}
+    </div>
+    <hr>
+    <h3>Описание</h3>
+    <div>{{ task.description|safe }}</div>
+
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'tasks:task_edit' task.slug %}" class="btn btn-primary">✏️ Редактировать</a>
+        <a href="{% url 'tasks:task_delete' task.slug %}" class="btn" style="background:#f56565; color:white;">🗑️ Удалить</a>
+    </div>
+</div>
+
+<script>
+    function vote(direction) {
+        fetch("{% url 'tasks:task_vote' task.slug %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'direction=' + direction
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.total_votes !== undefined) {
+                document.getElementById('vote-count').innerText = data.total_votes;
+            }
+        });
+    }
+    document.getElementById('vote-up')?.addEventListener('click', () => vote('up'));
+    document.getElementById('vote-down')?.addEventListener('click', () => vote('down'));
+</script>
+{% endblock %}

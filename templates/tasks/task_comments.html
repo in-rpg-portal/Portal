@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Комментарии к задаче «{{ task.title }}»{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Комментарии: {{ task.title }}</h1>
+    <p><a href="{% url 'tasks:task_detail' task.slug %}">← Вернуться к задаче</a></p>
+
+    {% if user.is_authenticated %}
+        <form method="post" style="margin-bottom: 2rem;">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.text.label_tag }}
+                {{ form.text }}
+                {{ form.text.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary">Добавить комментарий</button>
+        </form>
+    {% endif %}
+
+    <div class="comments-list">
+        {% for comment in comments %}
+            <div style="border-bottom: 1px solid #e2e8f0; margin-bottom: 1rem; padding-bottom: 1rem;">
+                <strong>{{ comment.author.username }}</strong> ({{ comment.created_at|date:"d.m.Y H:i" }})
+                <p>{{ comment.text|linebreaksbr }}</p>
+                {% if comment.updated_at != comment.created_at %}
+                    <small>изменён {{ comment.updated_at|date:"d.m.Y H:i" }}</small>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>Пока нет комментариев. Будьте первым!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -23,6 +23,7 @@
                 {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
             </div>
         {% endfor %}
+
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{% url 'directories:record_list' directory.slug %}" class="btn" style="background:#a0aec0;">Отмена</a>
     </form>

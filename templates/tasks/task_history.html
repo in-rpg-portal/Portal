@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}История задачи «{{ task.title }}»{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>История изменений: {{ task.title }}</h1>
+    <p><a href="{% url 'tasks:task_detail' task.slug %}">← Вернуться к задаче</a></p>
+    {% for record in history_list %}
+        <div style="border-left: 3px solid #667eea; margin: 1rem 0; padding: 0.5rem 1rem; background: #f7fafc;">
+            <strong>{{ record.history_date|date:"d.m.Y H:i:s" }}</strong>
+            ({{ record.history_user|default:"система" }}) —
+            {{ record.get_history_type_display }}
+            <ul>
+                {% for field, value in record.diff.items %}
+                    <li>{{ field }}: {{ value.0|default:"[empty]" }} → {{ value.1|default:"[empty]" }}</li>
+                {% empty %}
+                    <li>Нет изменений</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% empty %}
+        <p>История пуста.</p>
+    {% endfor %}
+</div>
+{% endblock %}

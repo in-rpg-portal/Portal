@@ -156,6 +156,7 @@ class Field(models.Model):
 class Record(models.Model):
     directory = models.ForeignKey(Directory, on_delete=models.CASCADE, related_name='records', verbose_name='Справочник')
     is_deleted = models.BooleanField('Удалена', default=False)
+    is_default = models.BooleanField('Использовать как значение по умолчанию', default=False)
     deleted_at = models.DateTimeField('Дата удаления', null=True, blank=True)
     created_at = models.DateTimeField('Создана', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлена', auto_now=True)
@@ -174,11 +175,20 @@ class Record(models.Model):
         ]
 
     def __str__(self):
-        # Пытаемся отобразить первое текстовое значение
-        text_value = self.values.filter(field__field_type='text', is_deleted=False).first()
-        if text_value and text_value.value:
-            return f"{self.directory.name}: {text_value.value}"
+        # Ищем текстовое поле (тип 'string' или 'text')
+        text_field = self.directory.fields.filter(field_type__in=['string', 'text'], is_deleted=False).first()
+        if text_field:
+            value = self.values.filter(field=text_field, is_deleted=False).first()
+            if value and value.value:
+                #return f"{self.directory.name}: {value.value}" #отображение в выпадающем списке "task_statuses: Отклонена"
+                return value.value #отображение в выпадающем списке "Отклонена"
         return f"{self.directory.name}: Запись #{self.id}"
+    
+    def save(self, *args, **kwargs):
+        # Если текущая запись помечена как дефолтная, снимаем этот флаг с других записей того же справочника
+        if self.is_default:
+            Record.objects.filter(directory=self.directory, is_default=True).exclude(pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('directories:record_detail', args=[self.directory.slug, self.pk])

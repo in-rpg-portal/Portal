@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     'profiles',
     'directories',
     'django_ckeditor_5',
+    'simple_history',
+    'tasks',
 ]
 
 MIDDLEWARE = [

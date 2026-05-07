@@ -1,8 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django_ckeditor_5.widgets import CKEditor5Widget   # <-- добавить импорт
+from django_ckeditor_5.widgets import CKEditor5Widget
 from .models import Directory, Field, Record, RecordValue
-from .utils import save_image_with_thumbnail, delete_image_and_thumbnail, pretty_html
+from .utils import save_image_with_thumbnail, delete_image_and_thumbnail
 
 class DirectoryForm(forms.ModelForm):
     class Meta:
@@ -16,13 +16,22 @@ class DirectoryForm(forms.ModelForm):
 
     def clean_slug(self):
         slug = self.cleaned_data['slug']
-        # Уникальность среди всех справочников (включая удалённые) – обеспечивается unique=True в модели
+        # уникальность проверяется в модели
         return slug
 
+
 class FieldForm(forms.ModelForm):
+    # Явное объявление поля max_length
+    max_length = forms.IntegerField(
+        required=False,
+        label='Максимальная длина',
+        widget=forms.NumberInput(attrs={'class': 'form-input'})
+    )
+
     class Meta:
         model = Field
-        fields = ('name', 'description', 'field_type', 'reference_directory', 'is_required', 'position', 'thumb_width', 'thumb_height', 'max_size_mb', 'max_length')
+        fields = ('name', 'description', 'field_type', 'reference_directory',
+                  'is_required', 'position', 'thumb_width', 'thumb_height', 'max_size_mb')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
@@ -33,44 +42,67 @@ class FieldForm(forms.ModelForm):
             'thumb_width': forms.NumberInput(attrs={'class': 'form-input'}),
             'thumb_height': forms.NumberInput(attrs={'class': 'form-input'}),
             'max_size_mb': forms.NumberInput(attrs={'class': 'form-input'}),
-            'max_length': forms.NumberInput(attrs={'class': 'form-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.initial['max_length'] = self.instance.max_length
 
     def clean(self):
         cleaned_data = super().clean()
         field_type = cleaned_data.get('field_type')
+
+        # Валидация для типа reference
         if field_type == 'reference' and not cleaned_data.get('reference_directory'):
             self.add_error('reference_directory', 'Для типа "Ссылка" выберите справочник-источник.')
+
+        # Очистка полей для типов, отличных от image
         if field_type != 'image':
             cleaned_data['thumb_width'] = None
             cleaned_data['thumb_height'] = None
-        # Валидация для строки: max_length обязателен и не менее 1
+
+        # Обработка max_length: берём значение напрямую из self.data (сырых POST-данных)
         if field_type == 'string':
-            max_length = cleaned_data.get('max_length')
-            if not max_length:
-                self.add_error('max_length', 'Для типа "Короткая строка" укажите максимальную длину.')
-            elif max_length < 1:
-                self.add_error('max_length', 'Длина должна быть положительным числом.')
+            raw_max_length = self.data.get('max_length')
+            if raw_max_length is None or raw_max_length == '':
+                self.add_error('max_length', 'Укажите максимальную длину.')
+            else:
+                try:
+                    max_length_val = int(raw_max_length)
+                    if max_length_val < 1:
+                        self.add_error('max_length', 'Длина должна быть положительным числом.')
+                    else:
+                        cleaned_data['max_length'] = max_length_val
+                except (TypeError, ValueError):
+                    self.add_error('max_length', 'Введите целое число.')
         else:
-            cleaned_data['max_length'] = None   # для других типов сбрасываем
+            cleaned_data['max_length'] = None
+
+        # Обновляем значение в экземпляре, если форма валидна
+        if hasattr(self, 'instance') and self.instance:
+            self.instance.max_length = cleaned_data.get('max_length')
+
         return cleaned_data
 
+
 class RecordForm(forms.ModelForm):
-    """Динамическая форма для записей, поля генерируются на основе Field"""
     class Meta:
         model = Record
         fields = ()
 
     def __init__(self, directory, *args, **kwargs):
+        self.user = kwargs.pop('user', None)  # получаем текущего пользователя
         self.directory = directory
         super().__init__(*args, **kwargs)
         self.fields_dict = {}
         fields = directory.fields.filter(is_deleted=False)
+
         for field in fields:
             field_name = f"field_{field.id}"
             self.fields_dict[field.id] = field
 
-            # Определяем виджет и тип поля
+            # Тип поля: короткая строка
             if field.field_type == 'string':
                 self.fields[field_name] = forms.CharField(
                     required=field.is_required,
@@ -78,11 +110,11 @@ class RecordForm(forms.ModelForm):
                     widget=forms.TextInput(attrs={'class': 'form-input'}),
                     label=field.name
                 )
+            # Тип поля: текст (с CKEditor)
             elif field.field_type == 'text':
-                # Используем CKEditor5Widget для текстовых полей
                 self.fields[field_name] = forms.CharField(
                     required=field.is_required,
-                    widget=CKEditor5Widget(config_name='default'),  # <-- замена виджета
+                    widget=CKEditor5Widget(config_name='default'),
                     label=field.name
                 )
             elif field.field_type == 'number':
@@ -119,7 +151,8 @@ class RecordForm(forms.ModelForm):
                     label=field.name,
                     help_text=f"Максимум {field.max_size_mb} Мб. Форматы: jpg, png, gif"
                 )
-            # Заполняем начальные значения, если запись уже существует
+
+            # Заполнение начальных значений
             if self.instance.pk:
                 existing = RecordValue.objects.filter(record=self.instance, field=field).first()
                 if existing:
@@ -129,34 +162,55 @@ class RecordForm(forms.ModelForm):
                     elif field.field_type == 'reference':
                         val = val if val else ''
                     elif field.field_type == 'image':
-                        # Для изображений не подставляем начальное значение в input, а показываем отдельный блок в шаблоне
                         self.initial[field_name] = None
-                        # Сохраняем текущий путь для возможного удаления старого файла
                         self._current_image_path = val
                         continue
                     self.initial[field_name] = val
 
+        # Добавляем поле is_default
+        self.fields['is_default'] = forms.BooleanField(
+            required=False,
+            label='Использовать как значение по умолчанию'
+        )
+        # Настройка disabled для не-админов
+        if self.user and not (self.user.is_superuser or self.user.is_staff):
+            self.fields['is_default'].widget.attrs['disabled'] = True
+            self.fields['is_default'].help_text = 'Только администратор может изменить настройку "по умолчанию".'
+        else:
+            self.fields['is_default'].widget.attrs['class'] = 'form-input'
+        # Устанавливаем начальное значение (если запись существует)
+        if self.instance.pk:
+            self.initial['is_default'] = self.instance.is_default
+
     def clean(self):
         cleaned_data = super().clean()
-        # Дополнительная валидация для изображений (размер, формат)
         for field_id, field in self.fields_dict.items():
             if field.field_type == 'image':
                 uploaded_file = cleaned_data.get(f"field_{field_id}")
-                if uploaded_file:
-                    # Проверка размера и расширения будет выполнена в save_image_with_thumbnail, но можем и здесь
-                    if uploaded_file.size > field.max_size_mb * 1024 * 1024:
-                        self.add_error(f"field_{field_id}", f"Файл слишком большой (максимум {field.max_size_mb} Мб)")
+                if uploaded_file and uploaded_file.size > field.max_size_mb * 1024 * 1024:
+                    self.add_error(f"field_{field_id}", f"Файл слишком большой (максимум {field.max_size_mb} Мб)")
+        
+        # Проверка уникальности для is_default
+        is_default = cleaned_data.get('is_default')
+        if is_default and self.instance.pk:
+            # Если пользователь не админ, но пытается изменить, то позже восстановим исходное, но здесь просто проверим
+            # Для всех, кто пытается установить дефолт, проверяем, нет ли уже другого дефолта
+            if Record.objects.filter(directory=self.directory, is_default=True).exclude(pk=self.instance.pk).exists():
+                self.add_error('is_default', 'В этом справочнике уже есть запись, отмеченная как значение по умолчанию. Сначала снимите отметку с неё.')
+        
         return cleaned_data
 
     def save(self, commit=True):
         record = super().save(commit=False)
+        # Устанавливаем is_default из формы
+        record.is_default = self.cleaned_data.get('is_default', False)
         if commit:
             record.save()
-            # Удаляем старые значения, которые не были переданы (но лучше обновить/создать)
+            # Сохраняем динамические поля
             for field_id, field in self.fields_dict.items():
                 field_name = f"field_{field_id}"
                 raw_value = self.cleaned_data.get(field_name)
-                # Преобразование значения в строку для хранения
+
                 if field.field_type == 'boolean':
                     str_value = 'True' if raw_value else 'False'
                 elif field.field_type == 'date' and raw_value:
@@ -166,11 +220,9 @@ class RecordForm(forms.ModelForm):
                 elif field.field_type == 'image':
                     uploaded_file = raw_value
                     if uploaded_file:
-                        # Удаляем старый файл, если он существует
                         old_value = RecordValue.objects.filter(record=record, field=field).first()
                         if old_value and old_value.value:
                             delete_image_and_thumbnail(old_value.value)
-                        # Сохраняем новое изображение
                         try:
                             relative_path = save_image_with_thumbnail(
                                 uploaded_file,
@@ -182,16 +234,14 @@ class RecordForm(forms.ModelForm):
                             )
                             str_value = relative_path
                         except ValueError as e:
-                            # Ошибка валидации – добавим к форме, но здесь просто пропустим? Лучше поднять ValidationError
-                            raise forms.ValidationError(f"Ошибка изображения: {e}")
+                            raise ValidationError(f"Ошибка изображения: {e}")
                     else:
-                        # Если файл не загружен и поле обязательное – ошибка будет выше
                         continue
                 elif field.field_type == 'text':
-                    # Добавляем форматирование HTML
-                    str_value = pretty_html(raw_value) if raw_value else ''
+                    str_value = raw_value if raw_value else ''
                 else:
                     str_value = str(raw_value) if raw_value is not None else ''
+
                 RecordValue.objects.update_or_create(
                     record=record,
                     field=field,

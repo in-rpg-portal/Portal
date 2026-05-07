@@ -12,6 +12,7 @@ urlpatterns = [
     path('ckeditor5/upload/', custom_ckeditor_upload, name='ckeditor5_upload'),
     path('profiles/', include('profiles.urls')),
     path('directories/', include('directories.urls')),
+    path('tasks/', include('tasks.urls')),
     
     # Кастомная форма смены пароля
     path('accounts/password_change/', 
