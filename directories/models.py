@@ -161,6 +161,7 @@ class Record(models.Model):
     created_at = models.DateTimeField('Создана', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлена', auto_now=True)
     position = models.PositiveIntegerField('Позиция', default=0, db_index=True, help_text='Чем больше число, тем выше запись в списке.')
+    slug = models.SlugField(max_length=100, unique=True, blank=True, verbose_name='Slug', help_text='Уникальный идентификатор для URL (генерируется автоматически)')
 
     objects = SoftDeleteManager()
     all_objects = models.Manager()
@@ -186,10 +187,35 @@ class Record(models.Model):
                 return value.value #отображение в выпадающем списке "Отклонена"
         return f"{self.directory.name}: Запись #{self.id}"
     
+    def get_display_name(self):
+        """Возвращает человеко-читаемое название записи (значение первого текстового поля)."""
+        text_field = self.directory.fields.filter(field_type__in=['string', 'text'], is_deleted=False).first()
+        if text_field:
+            value = self.values.filter(field=text_field, is_deleted=False).first()
+            if value and value.value:
+                return value.value
+        # fallback: slug или id
+        return self.slug if self.slug else f"Record #{self.id}"
+    
     def save(self, *args, **kwargs):
         # Если текущая запись помечена как дефолтная, снимаем этот флаг с других записей того же справочника
         if self.is_default:
             Record.objects.filter(directory=self.directory, is_default=True).exclude(pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)
+
+        if not self.slug:
+            # Получаем отображаемое имя записи (первое текстовое поле)
+            display_name = self.get_display_name()
+            from django.utils.text import slugify
+            base_slug = slugify(display_name)
+            if not base_slug:
+                base_slug = f"record-{self.id if self.id else int(time.time())}"
+            slug = base_slug
+            counter = 1
+            while Record.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):

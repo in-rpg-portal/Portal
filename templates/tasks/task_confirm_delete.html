@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Удалить задачу{% endblock %}
 
+{% block right_column %}
+    {% include 'tasks/includes/filters.html' %}
+{% endblock %}
+
 {% block content %}
 <div class="content-card">
     <h1>Удалить задачу «{{ task.title }}»</h1>

@@ -402,6 +402,7 @@
         <!-- ПРАВАЯ КОЛОНКА - ПОЛЬЗОВАТЕЛЬ -->
         <aside class="sidebar-right">
             <div class="user-card">
+                {% block right_column %}
                 <div class="user-card-title">
                     {% if user.is_authenticated %}
                         👤 Мой аккаунт
@@ -456,6 +457,7 @@
                         Зарегистрируйтесь, чтобы получить доступ ко всем функциям портала
                     </div>
                 {% endif %}
+                {% endblock %}
             </div>
         </aside>
         

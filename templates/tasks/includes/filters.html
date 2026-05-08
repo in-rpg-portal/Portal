@@ -1,0 +1,32 @@
+<div class="filters-card">
+    <ul class="menu-list">
+        <li><a href="{% url 'tasks:task_list' %}">✅ Активные задачи</a></li>
+        <li><a href="{% url 'tasks:task_list_all' %}">📋 Все задачи</a></li>
+    </ul>
+    <div class="menu-divider"></div>
+    
+    <div class="menu-title">📌 Типы</div>
+        
+    <ul class="menu-list">
+        {% for item in filter_lists.task_types %}
+            <li><a href="{% url 'tasks:task_list_filtered' slug=item.slug %}" {% if active_filter.type == 'task_type' and active_filter.slug == item.slug %}style="color:#667eea; font-weight:bold;"{% endif %}>{{ item.get_display_name }}</a></li>
+        {% endfor %}
+    </ul>
+    <div class="menu-divider"></div>
+
+    <div class="menu-title">🚀 Приоритеты</div>
+    <ul class="menu-list">
+        {% for item in filter_lists.task_priorities %}
+            <li><a href="{% url 'tasks:task_list_filtered' slug=item.slug %}" {% if active_filter.type == 'priority' and active_filter.slug == item.slug %}style="color:#667eea; font-weight:bold;"{% endif %}>{{ item.get_display_name }}</a></li>
+        {% endfor %}
+    </ul>
+    <div class="menu-divider"></div>
+
+    <div class="menu-title">📊 Статусы</div>
+    <ul class="menu-list">
+        {% for item in filter_lists.task_statuses %}
+            <li><a href="{% url 'tasks:task_list_filtered' slug=item.slug %}" {% if active_filter.type == 'status' and active_filter.slug == item.slug %}style="color:#667eea; font-weight:bold;"{% endif %}>{{ item.get_display_name }}</a></li>
+        {% endfor %}
+    </ul>
+   
+</div>
