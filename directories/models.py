@@ -160,6 +160,7 @@ class Record(models.Model):
     deleted_at = models.DateTimeField('Дата удаления', null=True, blank=True)
     created_at = models.DateTimeField('Создана', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлена', auto_now=True)
+    position = models.PositiveIntegerField('Позиция', default=0, db_index=True, help_text='Чем больше число, тем выше запись в списке.')
 
     objects = SoftDeleteManager()
     all_objects = models.Manager()
@@ -167,7 +168,8 @@ class Record(models.Model):
     class Meta:
         verbose_name = 'Запись справочника'
         verbose_name_plural = 'Записи справочников'
-        ordering = ['-created_at']
+        ordering = ['-position', 'id']   # сортировка по убыванию position, при равенстве по id
+        #ordering = ['-created_at'] # сортировка по убыванию created_at
         permissions = [
             ('can_soft_delete_record', 'Может мягко удалять запись'),
             ('can_hard_delete_record', 'Может полностью удалять запись'),

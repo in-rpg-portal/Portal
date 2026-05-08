@@ -148,7 +148,10 @@ def record_list(request, slug):
     
     records_data = []
     for record in records:
-        data = {'record': record}
+        data = {
+            'record': record,
+            'position': record.position,
+        }
         if text_field:
             text_value = record.values.filter(field=text_field, is_deleted=False).first()
             data['text_value'] = text_value.value if text_value else ''

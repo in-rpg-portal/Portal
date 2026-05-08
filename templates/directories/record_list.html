@@ -18,6 +18,7 @@
                     <th>ID</th>
                     {% if text_field %}<th>{{ text_field.name }}</th>{% endif %}
                     {% if image_field %}<th>{{ image_field.name }}</th>{% endif %}
+                    <th>Позиция</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -37,6 +38,7 @@
                             {% endif %}
                         </td>
                     {% endif %}
+                    <td>{{ item.position }}</td>
                     <td style="white-space: nowrap;">
                         <a href="{% url 'directories:record_detail' directory.slug item.record.id %}" class="btn" style="background:#3182ce; color:white; padding:2px 8px;">Просмотр</a>
                         {% if perms.directories.change_record %}

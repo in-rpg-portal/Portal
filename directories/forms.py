@@ -176,18 +176,29 @@ class RecordForm(forms.ModelForm):
             required=False,
             label='Использовать как значение по умолчанию'
         )
+
         # Настройка disabled для не-админов
         if self.user and not (self.user.is_superuser or self.user.is_staff):
             self.fields['is_default'].widget.attrs['disabled'] = True
             self.fields['is_default'].help_text = 'Только администратор может изменить настройку "по умолчанию".'
         else:
             self.fields['is_default'].widget.attrs['class'] = 'form-input'
+            self.fields['position'] = forms.IntegerField(required=False, label='Позиция', widget=forms.NumberInput(attrs={'class': 'form-input'}))
+            self.fields['position'].help_text = 'Чем больше число, тем выше запись в списке.'
+
+        if self.instance.pk:
+            self.initial['position'] = self.instance.position
+        else:
+            self.initial['position'] = 0
+
         # Устанавливаем начальное значение (если запись существует)
         if self.instance.pk:
             self.initial['is_default'] = self.instance.is_default
 
     def clean(self):
         cleaned_data = super().clean()
+        
+         # Валидация изображений
         for field_id, field in self.fields_dict.items():
             if field.field_type == 'image':
                 uploaded_file = cleaned_data.get(f"field_{field_id}")
@@ -202,13 +213,23 @@ class RecordForm(forms.ModelForm):
             if Record.objects.filter(directory=self.directory, is_default=True).exclude(pk=self.instance.pk).exists():
                 self.add_error('is_default', 'В этом справочнике уже есть запись, отмеченная как значение по умолчанию. Сначала снимите отметку с неё.')
         
+        # Защита position: если пользователь не админ, но поле position попытались подменить, игнорируем
+        if self.user and not (self.user.is_superuser or self.user.is_staff):
+            # Если поле position появилось в cleaned_data (хотя его не должно быть), удаляем
+            if 'position' in cleaned_data:
+                del cleaned_data['position']
+                
         return cleaned_data
 
     def save(self, commit=True):
         record = super().save(commit=False)
+
         # Устанавливаем is_default из формы
         record.is_default = self.cleaned_data.get('is_default', False)
         if commit:
+            if self.user and (self.user.is_superuser or self.user.is_staff) and 'position' in self.cleaned_data:
+                record.position = self.cleaned_data['position']
+
             record.save()
             # Сохраняем динамические поля
             for field_id, field in self.fields_dict.items():

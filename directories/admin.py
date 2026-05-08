@@ -57,9 +57,10 @@ class FieldAdmin(AllObjectsModelAdmin):
 
 @admin.register(Record)
 class RecordAdmin(AllObjectsModelAdmin):
-    list_display = ('id', 'directory', 'is_default', 'is_deleted', 'created_at')
+    list_display = ('id', 'directory', 'position', 'is_default', 'is_deleted', 'created_at')
     list_filter = ('directory', 'is_deleted', 'is_default')
     actions = ['soft_delete_selected', 'restore_selected', 'hard_delete_selected']
+    ordering = ('-position', 'id')
 
     def soft_delete_selected(self, request, queryset):
         for obj in queryset:
