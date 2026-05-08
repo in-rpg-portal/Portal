@@ -128,7 +128,8 @@ def task_create(request):
             task.author = request.user
             task.save()
             messages.success(request, f'Задача "{task.title}" создана.')
-            return redirect('tasks:task_detail', pk=task.pk)
+            #return redirect('tasks:task_detail', pk=task.pk) # Возврат после создания на страницу созданной задачи
+            return redirect('tasks:task_list') # Возврат после создания на главную страницу приложения
     else:
         form = TaskForm()
     return render(request, 'tasks/task_form.html', {
