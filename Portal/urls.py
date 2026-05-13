@@ -13,6 +13,7 @@ urlpatterns = [
     path('profiles/', include('profiles.urls')),
     path('directories/', include('directories.urls')),
     path('tasks/', include('tasks.urls')),
+    path('photos/', include('photos.urls')),
     
     # Кастомная форма смены пароля
     path('accounts/password_change/', 
