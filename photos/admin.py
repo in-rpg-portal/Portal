@@ -33,7 +33,6 @@ class PhotoAdminForm(forms.ModelForm):
             photo.save()
         return photo
 
-
 @admin.register(PhotoAlbum)
 class PhotoAlbumAdmin(admin.ModelAdmin):
     form = PhotoAlbumForm
