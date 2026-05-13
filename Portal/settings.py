@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'simple_history',
     'tasks',
+    'photos',
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,4 @@ CKEDITOR_5_CONFIGS = {
 CKEDITOR_5_UPLOAD_PATH = 'uploads/'
 CKEDITOR_5_FILE_STORAGE = 'django.core.files.storage.DefaultStorage'
 CK_EDITOR_5_UPLOAD_FILE_VIEW_NAME = "ckeditor5_upload"
+
