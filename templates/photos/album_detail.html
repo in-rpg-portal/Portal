@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ album.title }}{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>{{ album.title }}</h1>
+    <div class="album-meta">
+        <p><strong>Описание:</strong> {{ album.description|linebreaksbr }}</p>
+        <p><strong>Автор:</strong> {{ album.author|default:"не указан" }}</p>
+        <p><strong>Источник:</strong> {% if album.source %}<a href="{{ album.source }}" target="_blank">{{ album.source }}</a>{% else %}—{% endif %}</p>
+        <p><strong>Владелец:</strong> {{ album.owner.username }}</p>
+        <p><strong>Дата создания:</strong> {{ album.created_at|date:"d.m.Y" }}</p>
+        <p><strong>Приватность:</strong> {{ album.get_privacy_display }}</p>
+        {% if album.allow_downloads %}
+            <p><strong>Скачивание:</strong> разрешено</p>
+        {% endif %}
+    </div>
+
+    {% if user == album.owner or user.is_staff %}
+        <div class="album-actions" style="margin-bottom: 1rem;">
+            <a href="{% url 'photos:album_edit' pk=album.pk %}" class="btn btn-primary">✏️ Редактировать альбом</a>
+            <a href="{% url 'photos:album_delete' pk=album.pk %}" class="btn" style="background:#f56565; color:white;">🗑️ Удалить альбом</a>
+            <a href="{% url 'photos:photo_add' pk=album.pk %}" class="btn btn-secondary">➕ Добавить фото</a>
+        </div>
+    {% endif %}
+
+    <h2>Фотографии</h2>
+    {% if page_obj.object_list %}
+        <div class="photos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+            {% for photo in page_obj %}
+                <div class="photo-card" style="background: #f7fafc; border-radius: 8px; overflow: hidden; text-align: center;">
+                    <a href="{% url 'photos:photo_detail' pk=photo.pk %}">
+                        <img src="{{ photo.get_thumbnail_url }}" alt="{{ photo.alt_text|default:photo.original_name }}" style="width: 100%; height: 150px; object-fit: cover;">
+                    </a>
+                    <div style="padding: 0.5rem;">
+                        <p style="font-size: 0.8rem;">{{ photo.original_name|truncatechars:20 }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Пагинация -->
+        <div class="pagination" style="margin-top: 1.5rem; text-align: center;">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; первая</a>
+                <a href="?page={{ page_obj.previous_page_number }}">назад</a>
+            {% endif %}
+            <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">вперёд</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">последняя &raquo;</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>В этом альбоме пока нет фотографий.</p>
+    {% endif %}
+
+    <div style="margin-top: 1rem;">
+        <a href="{% url 'photos:album_list' %}" class="btn" style="background:#a0aec0;">← Назад к альбомам</a>
+    </div>
+</div>
+{% endblock %}

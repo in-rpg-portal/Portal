@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Удалить альбом{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Удаление альбома «{{ album.title }}»</h1>
+    <p>Выберите тип удаления:</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label><input type="radio" name="delete_type" value="soft" checked> Мягкое удаление (скрыть альбом, можно восстановить)</label><br>
+            <label><input type="radio" name="delete_type" value="hard"> Полное удаление (безвозвратно удалить альбом и все фотографии с диска)</label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="background:#f56565;">Удалить</button>
+        <a href="{% url 'photos:album_detail' pk=album.pk %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+{% endblock %}

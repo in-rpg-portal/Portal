@@ -8,6 +8,7 @@ import re
 from django.db import models
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.utils import timezone
 from PIL import Image
 from transliterate import translit
 
@@ -44,6 +45,51 @@ class PhotoAlbum(BaseAlbum):
     class Meta:
         verbose_name = 'Фотоальбом'
         verbose_name_plural = 'Фотоальбомы'
+
+    def get_cover_url(self):
+        """Возвращает URL миниатюры обложки альбома."""
+        if self.cover:
+            return self.cover.get_thumbnail_url()
+        first_photo = self.photos.filter(is_deleted=False).first()
+        if first_photo:
+            return first_photo.get_thumbnail_url()
+        return ''
+    
+    def hard_delete(self):
+        """Полное удаление альбома: удалить все фото (с файлами), папку альбома и запись."""
+        # Удаляем все фотографии альбома
+        for photo in Photo.all_objects.filter(album=self):
+            photo.hard_delete()
+        # Удаляем папку альбома, если она существует и пуста
+        album_dir = os.path.join(settings.MEDIA_ROOT, f'photos/album_{self.pk}')
+        if os.path.exists(album_dir):
+            try:
+                os.rmdir(album_dir)  # удаляет только пустую папку
+            except OSError:
+                # Папка не пуста — возможно, остались файлы (хотя все фото удалены)
+                pass
+        # Удаляем запись альбома
+        super().hard_delete()
+
+    def soft_delete(self):
+        """Мягкое удаление альбома: скрыть альбом и все его фото (даже уже скрытые)."""
+        if not self.is_deleted:
+            self.is_deleted = True
+            self.deleted_at = timezone.now()
+            self.save()
+            # Мягко удаляем все фотографии альбома (включая уже удалённые, это безопасно)
+            for photo in Photo.all_objects.filter(album=self):
+                photo.soft_delete()
+
+    def restore(self):
+        """Восстановить альбом и все его фотографии, которые были скрыты."""
+        if self.is_deleted:
+            self.is_deleted = False
+            self.deleted_at = None
+            self.save()
+            # Восстанавливаем только те фото, у которых is_deleted=True
+            for photo in Photo.all_objects.filter(album=self, is_deleted=True):
+                photo.restore()
 
 
 class Photo(BaseMediaItem):

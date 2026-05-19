@@ -43,8 +43,13 @@ class BaseAlbum(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)[:200]
+            import uuid
+            self.slug = uuid.uuid4().hex[:12]  # уникальная строка
         super().save(*args, **kwargs)
+
+    def hard_delete(self):
+        # У альбома нет своих файлов, просто удаляем запись
+        self.delete()
 
     def soft_delete(self):
         if not self.is_deleted:
@@ -57,9 +62,6 @@ class BaseAlbum(models.Model):
             self.is_deleted = False
             self.deleted_at = None
             self.save()
-
-    def hard_delete(self):
-        self.delete()
 
     def get_absolute_url(self):
         from django.urls import reverse

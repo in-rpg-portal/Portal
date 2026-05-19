@@ -39,6 +39,7 @@ class PhotoAlbumAdmin(admin.ModelAdmin):
     list_display = ('title', 'owner', 'privacy', 'is_deleted', 'created_at')
     list_filter = ('privacy', 'is_deleted')
     search_fields = ('title', 'description')
+    actions = ['soft_delete_selected', 'restore_selected', 'hard_delete_selected']
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -53,15 +54,59 @@ class PhotoAlbumAdmin(admin.ModelAdmin):
             obj.owner = request.user
         super().save_model(request, obj, form, change)
 
+    def get_queryset(self, request):
+        # Показываем все объекты (включая мягко удалённые)
+        return self.model.all_objects.all()
+
+    def soft_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.soft_delete()
+        self.message_user(request, f"{queryset.count()} альбом(ов) мягко удалено.")
+    soft_delete_selected.short_description = "Мягко удалить выбранные альбомы"
+
+    def restore_selected(self, request, queryset):
+        for obj in queryset:
+            obj.restore()
+        self.message_user(request, f"{queryset.count()} альбом(ов) восстановлено.")
+    restore_selected.short_description = "Восстановить выбранные альбомы"
+
+    def hard_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.hard_delete()
+        self.message_user(request, f"{queryset.count()} альбом(ов) полностью удалено.")
+    hard_delete_selected.short_description = "Полностью удалить выбранные альбомы"
+
 
 @admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
     form = PhotoAdminForm
     list_display = ('id', 'album', 'original_name', 'uploaded_by', 'uploaded_at', 'position', 'is_deleted')
-    list_filter = ('is_deleted',)
+    list_filter = ('is_deleted', 'album')
     readonly_fields = ('uploaded_at',)
+    actions = ['soft_delete_selected', 'restore_selected', 'hard_delete_selected']
 
     def save_model(self, request, obj, form, change):
         if not obj.pk and not obj.uploaded_by:
             obj.uploaded_by = request.user
         super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        return self.model.all_objects.all()
+
+    def soft_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.soft_delete()
+        self.message_user(request, f"{queryset.count()} фото мягко удалено.")
+    soft_delete_selected.short_description = "Мягко удалить выбранные фото"
+
+    def restore_selected(self, request, queryset):
+        for obj in queryset:
+            obj.restore()
+        self.message_user(request, f"{queryset.count()} фото восстановлено.")
+    restore_selected.short_description = "Восстановить выбранные фото"
+
+    def hard_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.hard_delete()
+        self.message_user(request, f"{queryset.count()} фото полностью удалено.")
+    hard_delete_selected.short_description = "Полностью удалить выбранные фото"
