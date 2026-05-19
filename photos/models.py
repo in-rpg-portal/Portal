@@ -99,6 +99,7 @@ class Photo(BaseMediaItem):
         related_name='photos',
         verbose_name='Альбом'
     )
+    view_count = models.PositiveIntegerField('Просмотры', default=0)
     alt_text = models.CharField('Альтернативный текст', max_length=200, blank=True)
     is_favorite = models.BooleanField('Избранное', default=False)
 

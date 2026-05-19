@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Добавить фото в альбом «{{ album.title }}»{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <h1>Добавить фото в альбом «{{ album.title }}»</h1>
+    <form method="post" enctype="multipart/form-data" id="uploadForm">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Выберите изображения (можно несколько):</label>
+            <input type="file" name="images" id="images" multiple accept="image/jpeg,image/png,image/gif,image/webp" class="form-input" required>
+        </div>
+        <div id="preview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1rem;"></div>
+        <div id="errors" style="color: #e53e3e; margin-top: 0.5rem;"></div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Загрузить</button>
+        <a href="{% url 'photos:album_detail' pk=album.pk %}" class="btn" style="background:#a0aec0;">Отмена</a>
+    </form>
+</div>
+
+<script>
+    const fileInput = document.getElementById('images');
+    const previewDiv = document.getElementById('preview');
+    const errorDiv = document.getElementById('errors');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    const maxSizeMB = 5; // максимальный размер файла в МБ
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function validateFile(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(ext)) {
+            return `Недопустимый формат "${ext}". Разрешены: ${allowedExtensions.join(', ')}`;
+        }
+        if (file.size > maxSizeBytes) {
+            return `Файл "${file.name}" слишком большой (${formatFileSize(file.size)}). Максимум ${maxSizeMB} МБ.`;
+        }
+        return null;
+    }
+
+    function updatePreview() {
+        previewDiv.innerHTML = '';
+        const files = Array.from(fileInput.files);
+        let hasErrors = false;
+        const errors = [];
+
+        files.forEach(file => {
+            const error = validateFile(file);
+            if (error) {
+                hasErrors = true;
+                errors.push(error);
+                return;
+            }
+
+            const reader = new FileReader();
+            const card = document.createElement('div');
+            card.style.width = '120px';
+            card.style.border = '1px solid #e2e8f0';
+            card.style.borderRadius = '8px';
+            card.style.padding = '5px';
+            card.style.textAlign = 'center';
+            card.style.backgroundColor = '#f7fafc';
+
+            const img = document.createElement('img');
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '4px';
+
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            const fileName = document.createElement('div');
+            fileName.textContent = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
+            fileName.style.fontSize = '12px';
+            fileName.style.marginTop = '5px';
+
+            const fileSize = document.createElement('div');
+            fileSize.textContent = formatFileSize(file.size);
+            fileSize.style.fontSize = '11px';
+            fileSize.style.color = '#718096';
+
+            card.appendChild(img);
+            card.appendChild(fileName);
+            card.appendChild(fileSize);
+            previewDiv.appendChild(card);
+        });
+
+        if (hasErrors) {
+            errorDiv.innerHTML = errors.join('<br>');
+            submitBtn.disabled = true;
+        } else {
+            errorDiv.innerHTML = '';
+            submitBtn.disabled = false;
+        }
+    }
+
+    fileInput.addEventListener('change', updatePreview);
+</script>
+{% endblock %}

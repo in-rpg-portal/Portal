@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ photo.original_name }}{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="photo-navigation">
+        {% if prev_photo %}
+            <a href="{% url 'photos:photo_detail' pk=prev_photo.pk %}" class="btn">← Предыдущее</a>
+        {% endif %}
+        {% if next_photo %}
+            <a href="{% url 'photos:photo_detail' pk=next_photo.pk %}" class="btn">Следующее →</a>
+        {% endif %}
+        <a href="{% url 'photos:album_detail' pk=photo.album.pk %}" class="btn" style="background:#a0aec0;">Вернуться в альбом</a>
+    </div>
+
+    <div class="photo-view" style="text-align: center; margin: 1rem 0;">
+        <img src="{{ photo.get_optimized_url }}" alt="{{ photo.alt_text|default:photo.original_name }}" style="max-width: 100%; border-radius: 8px;">
+        <p><a href="{{ photo.get_original_url }}" target="_blank">Открыть оригинал</a></p>
+    </div>
+
+    <div class="photo-info" style="margin-top: 1rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+        <p><strong>Название:</strong> {{ photo.alt_text|default:photo.original_name }}</p>
+        <p><strong>Дата загрузки:</strong> {{ photo.uploaded_at|date:"d.m.Y H:i" }}</p>
+        <p><strong>Автор (указанный):</strong> {{ photo.author|default:"не указан" }}</p>
+        <p><strong>Загрузил:</strong> {{ photo.uploaded_by.username }}</p>
+        <p><strong>Просмотров:</strong> {{ photo.view_count }}</p>
+        <p><strong>Лайков:</strong> <span id="likes-count">{{ photo.likes.count }}</span> (будет реализовано позже)</p>
+    </div>
+
+    <div class="photo-actions" style="margin-top: 1rem;">
+        {% if user == photo.album.owner or user.is_staff %}
+            <a href="{% url 'photos:photo_edit' pk=photo.pk %}" class="btn btn-primary">✏️ Редактировать</a>
+            <a href="{% url 'photos:photo_delete' pk=photo.pk %}" class="btn" style="background:#f56565; color:white;">🗑️ Удалить</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
