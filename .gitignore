@@ -1,13 +1,5 @@
 # Media files (avatars, uploads)
 media/
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.webp
-*.bmp
-*.ico
-*.svg
 
 # Django
 db.sqlite3
