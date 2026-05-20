@@ -21,8 +21,7 @@ class BaseAlbum(models.Model):
                                         ('by_link', 'По ссылке'),
                                         ('private', 'Только владелец')],
                                default='public')
-    cover = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,
-                              verbose_name='Обложка', related_name='+')
+    cover = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Обложка', related_name='+')
     order = models.PositiveIntegerField('Порядок', default=0)
     view_count = models.PositiveIntegerField('Просмотры', default=0)
     slug = models.SlugField('Slug', max_length=200, unique=True, blank=True)

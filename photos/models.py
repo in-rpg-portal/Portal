@@ -9,6 +9,7 @@ from django.db import models
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.utils import timezone
+from django.contrib.auth.models import User
 from PIL import Image
 from transliterate import translit
 
@@ -41,6 +42,7 @@ def normalize_filename(filename: str) -> str:
 # ------------------------------------------------------------
 class PhotoAlbum(BaseAlbum):
     allow_downloads = models.BooleanField('Разрешить скачивание', default=True)
+    cover = models.ForeignKey('Photo', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Обложка', related_name='+')
 
     class Meta:
         verbose_name = 'Фотоальбом'
@@ -100,7 +102,7 @@ class Photo(BaseMediaItem):
         verbose_name='Альбом'
     )
     view_count = models.PositiveIntegerField('Просмотры', default=0)
-    alt_text = models.CharField('Альтернативный текст', max_length=200, blank=True)
+    alt_text = models.CharField('Описание', max_length=200, blank=True)
     is_favorite = models.BooleanField('Избранное', default=False)
 
     class Meta:
@@ -232,6 +234,33 @@ class Photo(BaseMediaItem):
             delattr(self, '_file')
 
         super().save(*args, **kwargs)
+        # Установка обложки при первой загрузке (если обложка ещё не установлена)        
+        if not self.album.cover:
+            if self.album.photos.filter(is_deleted=False).count() == 1:
+                self.album.cover = self
+                # Также делаем это фото избранным, чтобы согласовать логику
+                self.is_favorite = True
+                self.save(update_fields=['is_favorite'])  # сохраняем флаг, не вызывая рекурсию
+                self.album.save(update_fields=['cover'])
+                # Выходим, чтобы не выполнять дальнейшую логику is_favorite повторно
+                return
+
+        # Логика обложки на основе поля is_favorite (выполняется после сохранения фото)
+        if self.is_favorite:
+            # Если фото отмечено как избранное, оно должно стать обложкой альбома
+            album = self.album
+            # Снимаем флаг is_favorite со всех других фото этого альбома
+            album.photos.filter(is_favorite=True).exclude(pk=self.pk).update(is_favorite=False)
+            # Устанавливаем обложку альбома
+            album.cover = self
+            album.save(update_fields=['cover'])
+        else:
+            # Если флаг снят и это фото было обложкой, убираем обложку
+            album = self.album
+            if album.cover == self:
+                album.cover = None
+                album.save(update_fields=['cover'])
+         
 
     # --------------------------------------------------------
     # URL-методы
@@ -254,3 +283,11 @@ class Photo(BaseMediaItem):
             if f and default_storage.exists(f.name):
                 default_storage.delete(f.name)
         self.delete()
+
+class PhotoLike(models.Model):
+    photo = models.ForeignKey('Photo', on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('photo', 'user')        

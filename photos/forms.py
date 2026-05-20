@@ -18,6 +18,11 @@ class PhotoAlbumForm(forms.ModelForm):
         }
 
 class PhotoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and not self.instance.alt_text and self.instance.original_name:
+            self.initial['alt_text'] = self.instance.original_name
+
     class Meta:
         model = Photo
         fields = ['alt_text', 'position', 'is_favorite', 'author', 'source']

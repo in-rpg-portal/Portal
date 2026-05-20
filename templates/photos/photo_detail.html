@@ -19,12 +19,27 @@
     </div>
 
     <div class="photo-info" style="margin-top: 1rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
-        <p><strong>Название:</strong> {{ photo.alt_text|default:photo.original_name }}</p>
+        <p><strong>Описание:</strong> {{ photo.alt_text|default:photo.original_name }}</p>
+        {% if photo.author %}
+            <p><strong>Автор:</strong> {{ photo.author }}</p>
+        {% endif %}
+        {% if photo.source %}
+            <p><strong>Источник:</strong> <a href="{{ photo.source }}" target="_blank">{{ photo.source }}</a></p>
+        {% endif %}
         <p><strong>Дата загрузки:</strong> {{ photo.uploaded_at|date:"d.m.Y H:i" }}</p>
-        <p><strong>Автор (указанный):</strong> {{ photo.author|default:"не указан" }}</p>
         <p><strong>Загрузил:</strong> {{ photo.uploaded_by.username }}</p>
         <p><strong>Просмотров:</strong> {{ photo.view_count }}</p>
-        <p><strong>Лайков:</strong> <span id="likes-count">{{ photo.likes.count }}</span> (будет реализовано позже)</p>
+        <div class="like-container" style="display: flex; align-items: center; gap: 0.5rem;">
+            {% if user.is_authenticated %}
+                <button id="like-btn" data-photo-id="{{ photo.pk }}" class="btn-like" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">
+                    ❤️
+                </button>
+            {% else %}
+                <span style="font-size: 1.5rem;">❤️</span>
+            {% endif %}
+            <span id="likes-count">{{ photo.likes.count }}</span>
+            <span>лайков</span>
+        </div>
     </div>
 
     <div class="photo-actions" style="margin-top: 1rem;">
@@ -34,4 +49,31 @@
         {% endif %}
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const likeBtn = document.getElementById('like-btn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function() {
+                const photoId = this.dataset.photoId;
+                fetch(`/photos/photo/${photoId}/like/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('likes-count').innerText = data.likes_count;
+                    if (data.liked) {
+                        likeBtn.style.color = 'red';
+                    } else {
+                        likeBtn.style.color = '';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
+    });
+</script>
 {% endblock %}
